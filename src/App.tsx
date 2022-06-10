@@ -2,12 +2,12 @@ import React from 'react';
 import './App.css';
 
 
-/*Issue2: Create UI elements
-  Add question
-  Add input
-  Add button
-  Add result message
+/*Issue3: 
+Randomly generate 2 integers within a certain range
 */
+
+
+
 
 function App() {
   return (
@@ -75,3 +75,4 @@ function DisplayResult(props: {correct: boolean}) {
 }
 
 export default App;
+
