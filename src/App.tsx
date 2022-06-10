@@ -93,6 +93,7 @@ function genRandNum(min: number, max: number): number {
   return floored;
 }
 
+//Test genRandNum() to confirm numbers fall within range
 function testRandFunc() {
  for (let i=0; i<30; i++) {
   console.log(i,": ",genRandNum(0,10));
