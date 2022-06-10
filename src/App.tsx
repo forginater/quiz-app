@@ -18,7 +18,8 @@ import {useState} from 'react';
 
 function App() {
   const [answer,SetAnswer] = useState(num1 * num2);
-  const [guess,setGuess] = useState(null);
+  const [guess,setGuess] = useState<number|null>(null);
+  //const [answerChecked,setAnswerChecked] = useState(false);
   
 
   return (
@@ -50,7 +51,7 @@ function Question(props: {num1: number, num2: number}) {
   )
 }
 
-function Answer(props: {guess: number | null, setGuess: any}) {
+function Answer(props: {guess: number | null, setGuess: (n:number|null) => void}) {
   return (
     <div>
       <input 
@@ -58,7 +59,7 @@ function Answer(props: {guess: number | null, setGuess: any}) {
         type="number"
         value={props.guess ?? ''}
         onChange={(e) => {
-          props.setGuess(e.target.value);
+          props.setGuess(parseInt(e.target.value));
         }}
       />
     </div>
