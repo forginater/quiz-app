@@ -19,7 +19,7 @@ import {useState} from 'react';
 function App() {
   const [answer,SetAnswer] = useState(num1 * num2);
   const [guess,setGuess] = useState<number|null>(null);
-  //const [answerChecked,setAnswerChecked] = useState(false);
+  const [answerChecked,setAnswerChecked] = useState(false);
   
 
   return (
@@ -33,10 +33,14 @@ function App() {
         <Answer guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
-        <AnswerButton />
+        <AnswerButton setAnswerChecked={setAnswerChecked}/>
 
         {/*Result of answer*/}
-        <DisplayResult correct={true}/>    
+        {answerChecked && (
+          <DisplayResult correct={guess===answer}/>    
+          )
+        }
+        
         
       </header>
     </div>
@@ -60,13 +64,14 @@ function Answer(props: {guess: number | null, setGuess: (n:number|null) => void}
         value={props.guess ?? ''}
         onChange={(e) => {
           props.setGuess(parseInt(e.target.value));
+          //Note the weird error messages in console if type number, then clear field
         }}
       />
     </div>
   )
 }
 
-function AnswerButton() {
+function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
   return (
     <>
       <label>
@@ -74,7 +79,9 @@ function AnswerButton() {
         <input 
           type="button"
           value="Check answer:"
-          onClick={() => console.log("button pressed!")}
+          onClick={(e) => {
+            props.setAnswerChecked(true);
+          }}
         />
       </label>
     </>
@@ -84,7 +91,7 @@ function AnswerButton() {
 function DisplayResult(props: {correct: boolean}) {
   return (
     <>
-      {props.correct ? 'Correct!' : 'Incorrect!'}
+      {props.correct ? 'Correct!' : 'Wrong!'}
     </>
   )
 }
