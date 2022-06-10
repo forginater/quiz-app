@@ -21,7 +21,7 @@ import {useState} from 'react';
 function App() {
 
 
-  const [randNums,setRandNums] = useState(numsGenerated);
+  //const [randNums,setRandNums] = useState(numsGenerated);
   
 
 
@@ -30,7 +30,7 @@ function App() {
       <header className="App-header">
 
         {/*Question:*/}
-        <Question num1={randNums.num1} num2={randNums.num2}/>
+        <Question num1={numsGenerated.num1} num2={numsGenerated.num2}/>
 
         {/*Answer field*/}
         <Answer answer={6*7}/>
