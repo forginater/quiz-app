@@ -13,15 +13,13 @@ import {useState} from 'react';
   let lowerBound = 0;
   let upperBound = 10;
   //Generate 2 random numbers within lowerBound-upperBound
-  const numsGenerated = {
-    num1: genRandNum(lowerBound,upperBound),
-    num2: genRandNum(lowerBound,upperBound)
-  };
+  const num1 = genRandNum(lowerBound,upperBound);
+  const num2 = genRandNum(lowerBound,upperBound);
 
 function App() {
+  const [answer,SetAnswer] = useState(num1 * num2);
 
-
-  //const [randNums,setRandNums] = useState(numsGenerated);
+  
   
 
 
@@ -30,7 +28,7 @@ function App() {
       <header className="App-header">
 
         {/*Question:*/}
-        <Question num1={numsGenerated.num1} num2={numsGenerated.num2}/>
+        <Question num1={num1} num2={num2}/>
 
         {/*Answer field*/}
         <Answer answer={6*7}/>
