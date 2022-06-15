@@ -30,7 +30,6 @@ function App() {
         <Question num1={num1} num2={num2}/>
 
         {/*Answer field*/}
-        <p>New Answer:</p>
         <Guess guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
@@ -74,21 +73,6 @@ function Question(props: {num1: number, num2: number}) {
   )
 }
 
-function GuessOld(props: {guess: number | null, setGuess: (n:number|null) => void}) {
-  return (
-    <div>
-      <input 
-        className = "text-center"
-        type="number"
-        value={props.guess ?? ''}
-        onChange={(e) => {
-          props.setGuess(parseInt(e.target.value));
-          //Note the weird error messages in console if type number, then clear field
-        }}
-      />
-    </div>
-  )
-}
 
 
 function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
