@@ -4,9 +4,9 @@ import {useState} from 'react';
 
 
 /*
-  Issue4: 
-   - Generate answer
-   - Store in state
+  Issue5: 
+    - Get value from input box
+    - Check if matches answer
 */
 
   //Set upper and lower bounds
@@ -18,10 +18,9 @@ import {useState} from 'react';
 
 function App() {
   const [answer,SetAnswer] = useState(num1 * num2);
-
+  const [guess,setGuess] = useState<number|null>(null);
+  const [answerChecked,setAnswerChecked] = useState(false);
   
-  
-
 
   return (
     <div className="App">
@@ -31,13 +30,17 @@ function App() {
         <Question num1={num1} num2={num2}/>
 
         {/*Answer field*/}
-        <Answer answer={6*7}/>
+        <Answer guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
-        <AnswerButton />
+        <AnswerButton setAnswerChecked={setAnswerChecked}/>
 
         {/*Result of answer*/}
-        <DisplayResult correct={true}/>    
+        {answerChecked && (
+          <DisplayResult correct={guess===answer}/>    
+          )
+        }
+        
         
       </header>
     </div>
@@ -52,19 +55,23 @@ function Question(props: {num1: number, num2: number}) {
   )
 }
 
-function Answer(props: {answer: number}) {
+function Answer(props: {guess: number | null, setGuess: (n:number|null) => void}) {
   return (
-    <div >
+    <div>
       <input 
         className = "text-center"
         type="number"
-        value={props.answer}
+        value={props.guess ?? ''}
+        onChange={(e) => {
+          props.setGuess(parseInt(e.target.value));
+          //Note the weird error messages in console if type number, then clear field
+        }}
       />
     </div>
   )
 }
 
-function AnswerButton() {
+function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
   return (
     <>
       <label>
@@ -72,7 +79,9 @@ function AnswerButton() {
         <input 
           type="button"
           value="Check answer:"
-          onClick={() => console.log("button pressed!")}
+          onClick={(e) => {
+            props.setAnswerChecked(true);
+          }}
         />
       </label>
     </>
@@ -82,7 +91,7 @@ function AnswerButton() {
 function DisplayResult(props: {correct: boolean}) {
   return (
     <>
-      {props.correct ? 'Correct!' : 'Incorrect!'}
+      {props.correct ? 'Correct!' : 'Wrong!'}
     </>
   )
 }
