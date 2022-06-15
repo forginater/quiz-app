@@ -13,13 +13,13 @@ import {useState} from 'react';
   let lowerBound = 0;
   let upperBound = 10;
   //Generate 2 random numbers within lowerBound-upperBound
-  const num1 = genRandNum(lowerBound,upperBound);
-  const num2 = genRandNum(lowerBound,upperBound);
+  const num1 = genRandNum(lowerBound, upperBound);
+  const num2 = genRandNum(lowerBound, upperBound);
 
 function App() {
-  const [answer,SetAnswer] = useState(num1 * num2);
-  const [guess,setGuess] = useState<number|null>(null);
-  const [answerChecked,setAnswerChecked] = useState(false);
+  const [answer, SetAnswer] = useState(num1 * num2);
+  const [answerChecked, setAnswerChecked] = useState(false);
+  const [guess,setGuess] = useState<number | undefined>();
   
 
   return (
@@ -30,7 +30,8 @@ function App() {
         <Question num1={num1} num2={num2}/>
 
         {/*Answer field*/}
-        <Answer guess={guess} setGuess={setGuess}/>
+        <p>New Answer:</p>
+        <Guess guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
         <AnswerButton setAnswerChecked={setAnswerChecked}/>
@@ -47,15 +48,9 @@ function App() {
   );
 }
 
-function Question(props: {num1: number, num2: number}) {
-  return (
-    <>
-      What is {props.num1} x {props.num2}?
-    </>
-  )
-}
 
-function Answer(props: {guess: number | null, setGuess: (n:number|null) => void}) {
+
+function Guess(props: {guess: number|undefined, setGuess: (n:number|undefined) => void}) {
   return (
     <div>
       <input 
@@ -70,6 +65,31 @@ function Answer(props: {guess: number | null, setGuess: (n:number|null) => void}
     </div>
   )
 }
+
+function Question(props: {num1: number, num2: number}) {
+  return (
+    <>
+      What is {props.num1} x {props.num2}?
+    </>
+  )
+}
+
+function GuessOld(props: {guess: number | null, setGuess: (n:number|null) => void}) {
+  return (
+    <div>
+      <input 
+        className = "text-center"
+        type="number"
+        value={props.guess ?? ''}
+        onChange={(e) => {
+          props.setGuess(parseInt(e.target.value));
+          //Note the weird error messages in console if type number, then clear field
+        }}
+      />
+    </div>
+  )
+}
+
 
 function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
   return (
