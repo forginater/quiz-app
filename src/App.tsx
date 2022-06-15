@@ -1,24 +1,34 @@
 import React from 'react';
 import './App.css';
+import {useState} from 'react';
 
 
-/*Issue3: 
-Randomly generate 2 integers within a certain range
+/*
+  Issue4: 
+   - Generate answer
+   - Store in state
 */
 
-
-
-
-
+  //Set upper and lower bounds
+  let lowerBound = 0;
+  let upperBound = 10;
+  //Generate 2 random numbers within lowerBound-upperBound
+  const num1 = genRandNum(lowerBound,upperBound);
+  const num2 = genRandNum(lowerBound,upperBound);
 
 function App() {
-  testRandFunc();
+  const [answer,SetAnswer] = useState(num1 * num2);
+
+  
+  
+
+
   return (
     <div className="App">
       <header className="App-header">
 
         {/*Question:*/}
-        <Question num1={6} num2={7}/>
+        <Question num1={num1} num2={num2}/>
 
         {/*Answer field*/}
         <Answer answer={6*7}/>
