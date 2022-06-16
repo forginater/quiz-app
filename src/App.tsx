@@ -32,7 +32,9 @@ import {useState, useEffect} from 'react';
 function App() {
   const [answer, SetAnswer] = useState(num1 * num2);
   const [guess, setGuess] = useState<number | undefined>();
+  //answerChecked toggled once user clicks <AnswerButton> 
   const [answerChecked, setAnswerChecked] = useState(false);
+  //timeUp toggled once time limit has elapsed in <CountDown>
   const [timeUp,setTimeUp] = useState(false);
 
   
@@ -42,10 +44,16 @@ function App() {
     <div className="App">
       <header className="App-header">
 
+        {/*Custom time limit*/}
+        <SetLimit />
+
+        {JSON.stringify(timeUp,null,4)}
+        <br/>
+
         {/*Question:*/}
         <Question num1={num1} num2={num2}/>
 
-        <CountDown timeLimit={timeLimit}/>
+        <CountDown timeLimit={timeLimit} setTimeUp={setTimeUp}/>
 
         {/*Answer field*/}
         <Guess guess={guess} setGuess={setGuess}/>
@@ -54,7 +62,7 @@ function App() {
         <AnswerButton setAnswerChecked={setAnswerChecked}/>
 
         {/*Result of answer*/}
-        {answerChecked && (
+        {(answerChecked || timeUp) && (
           <DisplayResult correct={guess===answer}/>    
           )
         }
@@ -65,14 +73,19 @@ function App() {
   );
 }
 
-function CountDown(props: {timeLimit: number}) {
+function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) {
   const [timeRem, setTimeRem] = useState(props.timeLimit);
 
   useEffect(() => {
+    console.log("useEffect called with timeRem = ", timeRem);
     setTimeout(() => {
       if (timeRem > 0) {
         setTimeRem((timeRem) => timeRem - 1);
-      };
+        console.log("setTimeRem called!");
+      } else {
+        console.log("Else branch called:");
+        props.setTimeUp(true);
+      }
     },1000)
     return () => clearTimeout();
   },[timeRem]);
@@ -83,6 +96,12 @@ function CountDown(props: {timeLimit: number}) {
         : <>Time ran out</>
       }
     </div>
+  )
+}
+
+function SetLimit() {
+  return (
+    <></>
   )
 }
 
