@@ -25,7 +25,8 @@ import {useState} from 'react';
 function App() {
   const [answer, SetAnswer] = useState(num1 * num2);
   const [answerChecked, setAnswerChecked] = useState(false);
-  const [guess,setGuess] = useState<number | undefined>();
+  const [guess, setGuess] = useState<number | undefined>();
+  const [timeRem, setTimeRem] = useState(limit);
   
 
   return (
@@ -34,6 +35,8 @@ function App() {
 
         {/*Question:*/}
         <Question num1={num1} num2={num2}/>
+
+        <CountDown timeRem={timeRem}/>
 
         {/*Answer field*/}
         <Guess guess={guess} setGuess={setGuess}/>
@@ -53,7 +56,13 @@ function App() {
   );
 }
 
-
+function CountDown(props: {timeRem: number}) {
+  return (
+    <div>
+      Time Remaining: {props.timeRem} seconds
+    </div>
+  )
+}
 
 function Guess(props: {guess: number|undefined, setGuess: (n:number|undefined) => void}) {
   return (
