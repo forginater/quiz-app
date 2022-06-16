@@ -4,17 +4,23 @@ import {useState} from 'react';
 
 
 /*
-  Issue5: 
-    - Get value from input box
-    - Check if matches answer
+  Issue11: 
+    - Start with a hardcoded limit of 10 seconds
+    - Display the number of seconds left
+    - Have the number of seconds left get updated
+    - When the timer hits zero, tell the user they ran out of time
+    - Allow the user to set a custom time duration
 */
 
-  //Set upper and lower bounds
+  //Set upper and lower bounds used to generate random numbers for quiz questions
   let lowerBound = 0;
   let upperBound = 10;
+
   //Generate 2 random numbers within lowerBound-upperBound
   const num1 = genRandNum(lowerBound, upperBound);
   const num2 = genRandNum(lowerBound, upperBound);
+   //hardcode default time limit per question if user doesn't provide a custom time duration
+   let limit = 10;
 
 function App() {
   const [answer, SetAnswer] = useState(num1 * num2);
