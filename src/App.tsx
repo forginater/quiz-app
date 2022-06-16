@@ -5,11 +5,18 @@ import {useState, useEffect} from 'react';
 
 /*
   Issue11: 
+    TODO
     - Start with a hardcoded limit of 10 seconds
     - Display the number of seconds left
     - Have the number of seconds left get updated
     - When the timer hits zero, tell the user they ran out of time
     - Allow the user to set a custom time duration
+
+    Problemitas
+    - Need to remove the input field & ability to check answer once time has elapsed... 
+      Choice => Should I stop displaying these & or freeze their access to change state
+    - Need to insulate <CountDown /> from state changes... 
+      => Try changing dependencies to timeRem
 */
 
   //Set upper and lower bounds used to generate random numbers for quiz questions
@@ -24,8 +31,10 @@ import {useState, useEffect} from 'react';
 
 function App() {
   const [answer, SetAnswer] = useState(num1 * num2);
-  const [answerChecked, setAnswerChecked] = useState(false);
   const [guess, setGuess] = useState<number | undefined>();
+  const [answerChecked, setAnswerChecked] = useState(false);
+  const [timeUp,setTimeUp] = useState(false);
+
   
   
 
@@ -62,11 +71,11 @@ function CountDown(props: {timeLimit: number}) {
   useEffect(() => {
     setTimeout(() => {
       if (timeRem > 0) {
-        setTimeRem((timeRem) => timeRem - 1)
+        setTimeRem((timeRem) => timeRem - 1);
       };
     },1000)
     return () => clearTimeout();
-  });
+  },[timeRem]);
   return (
     <div>
       {timeRem > 0
