@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 
 
 /*
@@ -20,13 +20,13 @@ import {useState} from 'react';
   const num1 = genRandNum(lowerBound, upperBound);
   const num2 = genRandNum(lowerBound, upperBound);
    //hardcode default time limit per question if user doesn't provide a custom time duration
-   let limit = 10;
+   let timeLimit = 10;
 
 function App() {
   const [answer, SetAnswer] = useState(num1 * num2);
   const [answerChecked, setAnswerChecked] = useState(false);
   const [guess, setGuess] = useState<number | undefined>();
-  const [timeRem, setTimeRem] = useState(limit);
+  
   
 
   return (
@@ -36,7 +36,7 @@ function App() {
         {/*Question:*/}
         <Question num1={num1} num2={num2}/>
 
-        <CountDown timeRem={timeRem}/>
+        <CountDown timeLimit={timeLimit}/>
 
         {/*Answer field*/}
         <Guess guess={guess} setGuess={setGuess}/>
@@ -56,10 +56,23 @@ function App() {
   );
 }
 
-function CountDown(props: {timeRem: number}) {
+function CountDown(props: {timeLimit: number}) {
+  const [timeRem, setTimeRem] = useState(props.timeLimit);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (timeRem > 0) {
+        setTimeRem((timeRem) => timeRem - 1)
+      };
+    },1000)
+    return () => clearTimeout();
+  });
   return (
     <div>
-      Time Remaining: {props.timeRem} seconds
+      {timeRem > 0
+        ? <>Time Remaining: {timeRem} seconds</>
+        : <>Time ran out</>
+      }
     </div>
   )
 }
