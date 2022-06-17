@@ -59,7 +59,10 @@ function App() {
         <Guess guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
-        <AnswerButton setAnswerChecked={setAnswerChecked}/>
+        {(!answerChecked && !timeUp) && 
+          <AnswerButton setAnswerChecked={setAnswerChecked}/>
+        }
+        
 
         {/*Result of answer*/}
         {(answerChecked || timeUp) && (
@@ -73,8 +76,11 @@ function App() {
   );
 }
 
+//CountDown runs and displays a timer that counts down from props.timeLimit until it reaches 0
+//when timeRem reaches 0, it displays "Time Ran Out" and invokes props.setTimeUp(true) to signal to its parent component that the timer has finished
 function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) {
   const [timeRem, setTimeRem] = useState(props.timeLimit);
+  const setTimeUp = props.setTimeUp;
 
   useEffect(() => {
     console.log("useEffect called with timeRem = ", timeRem);
@@ -83,12 +89,11 @@ function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) 
         setTimeRem((timeRem) => timeRem - 1);
         console.log("setTimeRem called!");
       } else {
-        console.log("Else branch called:");
-        props.setTimeUp(true);
+        setTimeUp(true);
       }
     },1000)
     return () => clearTimeout();
-  },[timeRem]);
+  },[timeRem,setTimeUp]); //Had to destructure props outside of useEffect and add to dependency array in order to get rid of warning
   return (
     <div>
       {timeRem > 0
@@ -99,6 +104,10 @@ function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) 
   )
 }
 
+//NOT IMPLEMENTED
+//SetLimit() will allow the user to select a custom time limit other than 10s
+//Need to decide whether to stall displaying the question etc until user has entered custom time... 
+//Could put everything else in a separate component that isn't rendered until custom time limit has been entered
 function SetLimit() {
   return (
     <></>
