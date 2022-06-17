@@ -19,17 +19,45 @@ import {useState, useEffect} from 'react';
       => Try changing dependencies to timeRem
 */
 
-  //Set upper and lower bounds used to generate random numbers for quiz questions
-  let lowerBound = 0;
-  let upperBound = 10;
+//Set upper and lower bounds used to generate random numbers for quiz questions
+let lowerBound = 0;
+let upperBound = 10;
 
-  //Generate 2 random numbers within lowerBound-upperBound
-  const num1 = genRandNum(lowerBound, upperBound);
-  const num2 = genRandNum(lowerBound, upperBound);
-   //hardcode default time limit per question if user doesn't provide a custom time duration
-   let timeLimit = 10;
+//Generate 2 random numbers within lowerBound-upperBound
+const num1 = genRandNum(lowerBound, upperBound);
+const num2 = genRandNum(lowerBound, upperBound);
+//hardcode default time limit per question if user doesn't provide a custom time duration
+let timeLimit = 10;
+
+
 
 function App() {
+  //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
+  const [timeLimit,setTimeLimit] = useState(10);
+  //paramsEntered
+  const [enteredSettings, setEnteredSettings] = useState();
+  return (
+    <div>
+      {/*Enter custom time limit*/}
+      <EnterSettings />
+      
+
+      <Quiz />
+    </div>
+  )
+}
+
+//NOT IMPLEMENTED
+//SetLimit() will allow the user to select a custom time limit other than 10s
+//Need to decide whether to stall displaying the question etc until user has entered custom time... 
+//Could put everything else in a separate component that isn't rendered until custom time limit has been entered
+function EnterSettings() {
+  return (
+    <></>
+  )
+}
+
+function Quiz() {
   const [answer, SetAnswer] = useState(num1 * num2);
   const [guess, setGuess] = useState<number | undefined>();
   //answerChecked toggled once user clicks <AnswerButton> 
@@ -44,9 +72,6 @@ function App() {
     <div className="App">
       <header className="App-header">
 
-        {/*Custom time limit*/}
-        <SetLimit />
-
         {JSON.stringify(timeUp,null,4)}
         <br/>
 
@@ -59,12 +84,14 @@ function App() {
         <Guess guess={guess} setGuess={setGuess}/>
 
         {/*Check answer button*/}
+        {/*Keep Rendering until Check button clicked or timeUp*/}
         {(!answerChecked && !timeUp) && 
           <AnswerButton setAnswerChecked={setAnswerChecked}/>
         }
         
 
-        {/*Result of answer*/}
+        {/*Display result of answer*/}
+        {/*Render */}
         {(answerChecked || timeUp) && (
           <DisplayResult correct={guess===answer}/>    
           )
@@ -104,15 +131,7 @@ function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) 
   )
 }
 
-//NOT IMPLEMENTED
-//SetLimit() will allow the user to select a custom time limit other than 10s
-//Need to decide whether to stall displaying the question etc until user has entered custom time... 
-//Could put everything else in a separate component that isn't rendered until custom time limit has been entered
-function SetLimit() {
-  return (
-    <></>
-  )
-}
+
 
 function Guess(props: {guess: number|undefined, setGuess: (n:number|undefined) => void}) {
   return (
