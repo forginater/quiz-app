@@ -10,18 +10,13 @@ let upperBound = 10;
 const num1 = genRandNum(lowerBound, upperBound);
 const num2 = genRandNum(lowerBound, upperBound);
 
-const timeLimit = 10;
-
-export function Quiz() {
+export function Quiz(props: {timeLimit: number}) {
     const [answer, SetAnswer] = useState(num1 * num2);
     const [guess, setGuess] = useState<number | undefined>();
     //answerChecked toggled once user clicks <AnswerButton> 
     const [answerChecked, setAnswerChecked] = useState(false);
     //timeUp toggled once time limit has elapsed in <CountDown>
     const [timeUp,setTimeUp] = useState(false);
-  
-    
-    
   
     return (
       <div className="App">
@@ -31,7 +26,7 @@ export function Quiz() {
           {/*Question:*/}
           <Question num1={num1} num2={num2}/>
   
-          <CountDown timeLimit={timeLimit} setTimeUp={setTimeUp}/>
+          <CountDown timeLimit={props.timeLimit} setTimeUp={setTimeUp}/>
   
           {/*Answer field*/}
           <Guess guess={guess} setGuess={setGuess}/>

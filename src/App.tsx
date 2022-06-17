@@ -37,9 +37,10 @@ function App() {
     <div className="App">
       <div className="App-header">
         {/*Once settings have been entered, then start the quiz*/}
+        {/*to Implement: add in ability to custom enter lowerBound, upperBound & numQuestions*/}
         {!doneSettings 
           ? <EnterSettings timeLimit={timeLimit} setTimeLimit={setTimeLimit} setDoneSettings={setDoneSettings}/>
-          : <Quiz /> 
+          : <Quiz timeLimit={timeLimit}/> 
         }
         {/*To IMPLEMENT: Once quiz has been completed: display results*/}
         
