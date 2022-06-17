@@ -19,6 +19,7 @@ import {useState, useEffect} from 'react';
       => Try changing dependencies to timeRem
 */
 
+
 //Set upper and lower bounds used to generate random numbers for quiz questions
 let lowerBound = 0;
 let upperBound = 10;
@@ -40,10 +41,13 @@ function App() {
   return (
     <div className="App">
       <div className="App-header">
-        {/*Enter custom time limit*/}
-        <EnterSettings timeLimit={timeLimit} setTimeLimit={setTimeLimit} setDoneSettings={setDoneSettings}/>
         {/*Once settings have been entered, then start the quiz*/}
-        <Quiz />
+        {!doneSettings 
+          ? <EnterSettings timeLimit={timeLimit} setTimeLimit={setTimeLimit} setDoneSettings={setDoneSettings}/>
+          : <Quiz /> 
+        }
+        {/*To IMPLEMENT: Once quiz has been completed: display results*/}
+        
       </div>
     </div>
   )
