@@ -30,19 +30,21 @@ const num2 = genRandNum(lowerBound, upperBound);
 let timeLimit = 10;
 
 
-
+//Get settings from user then render the quiz, finally display results to user
 function App() {
   //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
   const [timeLimit,setTimeLimit] = useState(10);
   //paramsEntered
-  const [enteredSettings, setEnteredSettings] = useState();
-  return (
-    <div>
-      {/*Enter custom time limit*/}
-      <EnterSettings />
-      
+  const [doneSettings, setDoneSettings] = useState(false);
 
-      <Quiz />
+  return (
+    <div className="App">
+      <div className="App-header">
+        {/*Enter custom time limit*/}
+        <EnterSettings timeLimit={timeLimit} setTimeLimit={setTimeLimit} setDoneSettings={setDoneSettings}/>
+        {/*Once settings have been entered, then start the quiz*/}
+        <Quiz />
+      </div>
     </div>
   )
 }
@@ -51,9 +53,36 @@ function App() {
 //SetLimit() will allow the user to select a custom time limit other than 10s
 //Need to decide whether to stall displaying the question etc until user has entered custom time... 
 //Could put everything else in a separate component that isn't rendered until custom time limit has been entered
-function EnterSettings() {
+function EnterSettings(props: {timeLimit: number, setTimeLimit: (n: number) => void, setDoneSettings: (b: boolean) => void}) {
   return (
-    <></>
+    <div>
+      <h3>Enter Quiz Settings:</h3>
+      <label>
+        Enter time limit in seconds:
+        <input 
+          type="text"
+          value={props.timeLimit}
+          onChange={(e) => {
+            Number.isNaN(parseInt(e.target.value)) 
+            ? console.log("Invalid non-number character entered into timeLimit field!") 
+            : props.setTimeLimit(parseInt(e.target.value));            
+            //There is a bug here: can't backspace to empty field when only 1 character left
+          }}
+        />
+      </label>
+      <br/><br/>
+      <label>
+        <input
+          type="button"
+          value="Start Quiz"
+          onClick={(e) => {
+            props.setDoneSettings(true);
+          }}
+        />
+          
+      </label>
+
+    </div>
   )
 }
 
@@ -70,10 +99,8 @@ function Quiz() {
 
   return (
     <div className="App">
-      <header className="App-header">
-
-        {JSON.stringify(timeUp,null,4)}
         <br/>
+        <h3>Your Suffering has just begun!</h3>
 
         {/*Question:*/}
         <Question num1={num1} num2={num2}/>
@@ -97,8 +124,6 @@ function Quiz() {
           )
         }
         
-        
-      </header>
     </div>
   );
 }
