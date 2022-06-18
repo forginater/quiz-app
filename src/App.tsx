@@ -13,12 +13,6 @@ import { EnterSettings } from './EnterSettings';
     - Have the number of seconds left get updated
     - When the timer hits zero, tell the user they ran out of time
     - Allow the user to set a custom time duration
-
-    Problemitas
-    - Need to remove the input field & ability to check answer once time has elapsed... 
-      Choice => Should I stop displaying these & or freeze their access to change state
-    - Need to insulate <CountDown /> from state changes... 
-      => Try changing dependencies to timeRem
 */
 
 

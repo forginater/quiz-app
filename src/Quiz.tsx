@@ -2,6 +2,14 @@ import React from 'react';
 import './App.css';
 import {useState, useEffect} from 'react';
 
+/*
+- [ ] Fix program logic in \<Quiz\> according to proposal below 
+- [ ] Prevent the timer from continuing to count down after the question has been answered
+- [ ] 1 second lag between CountDown completing and displaying the answer
+- [ ] Fix the CountDown display jumping from 10 to 8 seconds (appears to be about 2 seconds but need to check exact times)
+- [ ] Fix inability to backspace to empty field in custom timeLimit
+*/
+
 //Set upper and lower bounds used to generate random numbers for quiz questions
 let lowerBound = 0;
 let upperBound = 10;
