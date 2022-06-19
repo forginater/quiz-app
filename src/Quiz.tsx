@@ -1,13 +1,19 @@
 import React from 'react';
 import './App.css';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 
 /*
+TODO
 - [ ] Fix program logic in \<Quiz\> according to proposal below 
 - [ ] Prevent the timer from continuing to count down after the question has been answered
 - [ ] 1 second lag between CountDown completing and displaying the answer
 - [ ] Fix the CountDown display jumping from 10 to 8 seconds (appears to be about 2 seconds but need to check exact times)
 - [ ] Fix inability to backspace to empty field in custom timeLimit
+
+PROGRAM LOGIC
+done = answerChecked || timeUp
+if (done) => run timer & render guessfield
+else => display result, stop timer & freeze guessfield (maintain visible but can't change input field)
 */
 
 //Set upper and lower bounds used to generate random numbers for quiz questions
@@ -18,18 +24,32 @@ let upperBound = 10;
 const num1 = genRandNum(lowerBound, upperBound);
 const num2 = genRandNum(lowerBound, upperBound);
 
+
+
 export function Quiz(props: {timeLimit: number}) {
+    //answer <=> true answer
     const [answer, SetAnswer] = useState(num1 * num2);
+    //User inputted guess
     const [guess, setGuess] = useState<number | undefined>();
     //answerChecked toggled once user clicks <AnswerButton> 
     const [answerChecked, setAnswerChecked] = useState(false);
     //timeUp toggled once time limit has elapsed in <CountDown>
-    const [timeUp,setTimeUp] = useState(false);
+    const [timeUp, setTimeUp] = useState(false);
+
+    const done = timeUp || answerChecked;
+
+   
+
+   
+    //{(!answerChecked && !timeUp) && 
+    //{(answerChecked || timeUp) && (
   
     return (
       <div className="App">
           <br/>
           <h3>Your Suffering has just begun!</h3>
+
+          
   
           {/*Question:*/}
           <Question num1={num1} num2={num2}/>
@@ -38,17 +58,20 @@ export function Quiz(props: {timeLimit: number}) {
   
           {/*Answer field*/}
           <Guess guess={guess} setGuess={setGuess}/>
+
   
           {/*Check answer button*/}
           {/*Keep Rendering until Check button clicked or timeUp*/}
-          {(!answerChecked && !timeUp) && 
+          {/*NOTE: (!answerChecked && !timeUp) <=> !(answerChecked || timeUp)  */}
+          {(!done) && 
             <AnswerButton setAnswerChecked={setAnswerChecked}/>
           }
-          
+
+
   
           {/*Display result of answer*/}
           {/*Render */}
-          {(answerChecked || timeUp) && (
+          {(done) && (
             <DisplayResult correct={guess===answer}/>    
             )
           }
