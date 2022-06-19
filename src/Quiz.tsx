@@ -38,43 +38,28 @@ export function Quiz(props: {timeLimit: number}) {
 
     const done = timeUp || answerChecked;
 
-   
-
-   
-    //{(!answerChecked && !timeUp) && 
-    //{(answerChecked || timeUp) && (
   
     return (
       <div className="App">
           <br/>
           <h3>Your Suffering has just begun!</h3>
 
-          
-  
           {/*Question:*/}
-          <Question num1={num1} num2={num2}/>
-  
-          <CountDown timeLimit={props.timeLimit} setTimeUp={setTimeUp}/>
-  
-          {/*Answer field*/}
-          <Guess guess={guess} setGuess={setGuess}/>
+          <Question num1={num1} num2={num2}/>          
 
-  
-          {/*Check answer button*/}
-          {/*Keep Rendering until Check button clicked or timeUp*/}
-          {/*NOTE: (!answerChecked && !timeUp) <=> !(answerChecked || timeUp)  */}
-          {(!done) && 
-            <AnswerButton setAnswerChecked={setAnswerChecked}/>
+          <CountDown timeLimit={props.timeLimit} setTimeUp={setTimeUp} done={done}/>
+      
+          {/*After (done) freeze the Guess component, stop displaying the AnswerButton and DisplayResult*/}
+          {!done 
+            ? (<Guess guess={guess} setGuess={setGuess}/>) 
+            : (<GuessFrozen guess={guess}/>)
           }
-
-
-  
-          {/*Display result of answer*/}
-          {/*Render */}
-          {(done) && (
-            <DisplayResult correct={guess===answer}/>    
-            )
+          
+          {!done 
+            ? (<AnswerButton setAnswerChecked={setAnswerChecked}/>) 
+            : (<DisplayResult correct={guess===answer}/>)
           }
+          
           
       </div>
     );
@@ -82,14 +67,14 @@ export function Quiz(props: {timeLimit: number}) {
   
   //CountDown runs and displays a timer that counts down from props.timeLimit until it reaches 0
   //when timeRem reaches 0, it displays "Time Ran Out" and invokes props.setTimeUp(true) to signal to its parent component that the timer has finished
-  function CountDown(props: {timeLimit: number, setTimeUp: (n: boolean) => void}) {
+  function CountDown(props: {timeLimit: number, done: boolean, setTimeUp: (n: boolean) => void}) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     const setTimeUp = props.setTimeUp;
-  
+    
     useEffect(() => {
       console.log("useEffect called with timeRem = ", timeRem);
       setTimeout(() => {
-        if (timeRem > 0) {
+        if (!props.done && timeRem > 0) {
           setTimeRem((timeRem) => timeRem - 1);
           console.log("setTimeRem called!");
         } else {
@@ -97,7 +82,7 @@ export function Quiz(props: {timeLimit: number}) {
         }
       },1000)
       return () => clearTimeout();
-    },[timeRem,setTimeUp]); //Had to destructure props outside of useEffect and add to dependency array in order to get rid of warning
+    },[props.done, timeRem, setTimeUp]); //Had to destructure props outside of useEffect and add to dependency array in order to get rid of warning
     return (
       <div>
         {timeRem > 0
@@ -107,8 +92,36 @@ export function Quiz(props: {timeLimit: number}) {
       </div>
     )
   }
+
+  function CountDownFrozen(props: {timeRem: number}) {
+    return (
+        <div>
+          {props.timeRem > 0
+            ? <>Time Remaining: {props.timeRem} seconds</>
+            : <>Time ran out</>
+          }
+        </div>
+      )
+
+  }
   
-  
+  /*
+  function updateGuess(f: (e: any, set: (n: number|undefined) => void) => void): any {
+    set.(parseInt(e.target.value));
+  }
+  */
+
+  function GuessFrozen(props: {guess: number|undefined}) {
+    return (
+      <div>
+        <input 
+          className = "text-center"
+          type="number"
+          value={props.guess ?? ''}
+        />
+      </div>
+    )
+  }
   
   function Guess(props: {guess: number|undefined, setGuess: (n:number|undefined) => void}) {
     return (
