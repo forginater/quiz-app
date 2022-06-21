@@ -70,7 +70,7 @@ export function Quiz(props: {timeLimit: number}) {
       setTimeout(() => {
         if (!props.done && timeRem > 0) {
           setTimeRem((timeRem) => timeRem - 1);
-          console.log("setTimeRem called!");
+          console.log("setTimeRem decremented: ",timeRem);
         } else {
           setTimeUp(true);
         }
