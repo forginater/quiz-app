@@ -23,9 +23,10 @@ import { EnterSettings } from './EnterSettings';
 //Get settings from user then render the quiz, finally display results to user
 function App() {
   //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
-  const [timeLimit,setTimeLimit] = useState(10);
+  const [timeLimit, setTimeLimit] = useState<number>(10);
   //paramsEntered
   const [doneSettings, setDoneSettings] = useState(false);
+
 
   return (
     <div className="App">

@@ -30,7 +30,7 @@ export function Quiz(props: {timeLimit: number}) {
     //answer <=> true answer
     const [answer, SetAnswer] = useState(num1 * num2);
     //User inputted guess
-    const [guess, setGuess] = useState<number | undefined>();
+    const [guess, setGuess] = useState<number|undefined>();
     //answerChecked toggled once user clicks <AnswerButton> 
     const [answerChecked, setAnswerChecked] = useState(false);
     //timeUp toggled once time limit has elapsed in <CountDown>
@@ -68,6 +68,8 @@ export function Quiz(props: {timeLimit: number}) {
   //CountDown runs and displays a timer that counts down from props.timeLimit until it reaches 0
   //when timeRem reaches 0, it displays "Time Ran Out" and invokes props.setTimeUp(true) to signal to its parent component that the timer has finished
   function CountDown(props: {timeLimit: number, done: boolean, setTimeUp: (n: boolean) => void}) {
+    //Set timeRem to value passed from timeLimit, if timeLimit is NaN
+    console.log("COUTNDOWN: tried to assign NaN to timeRem >> ",isNaN(props.timeLimit) )
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     const setTimeUp = props.setTimeUp;
     
