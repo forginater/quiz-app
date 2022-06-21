@@ -1,127 +1,80 @@
 import React from 'react';
 import './App.css';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import { Quiz } from './Quiz';
+import { EnterSettings } from './EnterSettings';
 
 
-/*
-  Issue5: 
-    - Get value from input box
-    - Check if matches answer
-*/
 
-  //Set upper and lower bounds
-  let lowerBound = 0;
-  let upperBound = 10;
-  //Generate 2 random numbers within lowerBound-upperBound
-  const num1 = genRandNum(lowerBound, upperBound);
-  const num2 = genRandNum(lowerBound, upperBound);
 
+
+
+//Get settings from user then render the quiz, finally display results to user
 function App() {
-  const [answer, SetAnswer] = useState(num1 * num2);
-  const [answerChecked, setAnswerChecked] = useState(false);
-  const [guess,setGuess] = useState<number | undefined>();
-  
+  //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
+  const [timeLimit, setTimeLimit] = useState<number>(10);
+  const [numQuestions, setNumQuestions] = useState<number>(10);
+  //const [upperBound, setUpperBound] = useState<number>(1);
+  //const [lowerBound, setLowerBound] = useState<number>(10);
+
+  //startClicked toggled once user has entered (valid) settings & presses <StartButton>
+  //if the settings are invalid a warning message will be displayed in <StartButton>
+  const [startClicked, setStartClicked] = useState<boolean>(false)
+  //validateSettings used by <StartButton> to make sure timeLimit & numQuestions have valid input values, this is used by 
+  let validateSettings = !Number.isNaN(timeLimit) && !Number.isNaN(numQuestions);
+
 
   return (
     <div className="App">
-      <header className="App-header">
+      <div className="App-header">
+        {/*Once settings have been entered, then start the quiz*/}
+        {/*to Implement: add in ability to custom enter lowerBound, upperBound & numQuestions*/}
 
-        {/*Question:*/}
-        <Question num1={num1} num2={num2}/>
 
-        {/*Answer field*/}
-        <Guess guess={guess} setGuess={setGuess}/>
-
-        {/*Check answer button*/}
-        <AnswerButton setAnswerChecked={setAnswerChecked}/>
-
-        {/*Result of answer*/}
-        {answerChecked && (
-          <DisplayResult correct={guess===answer}/>    
-          )
+        {!startClicked && 
+        <>
+            <EnterSettings 
+              timeLimit={timeLimit} 
+              numQuestions={numQuestions}
+              setTimeLimit={setTimeLimit} 
+              setNumQuestions={setNumQuestions}
+            />
+            <StartButton setStartClicked={setStartClicked} validateSettings={validateSettings} />
+        </>
         }
+        {startClicked && <Quiz timeLimit={timeLimit}/>}
+        {/*To IMPLEMENT: Once quiz has been completed: display results*/}
         
-        
-      </header>
+      </div>
     </div>
-  );
+  )
 }
 
+export default App;
 
-
-function Guess(props: {guess: number|undefined, setGuess: (n:number|undefined) => void}) {
+function StartButton(props: {setStartClicked: (b: boolean) => void, validateSettings: boolean}) {
+  const [startAttemptRejected, setStartAttemptRejected] = useState(false);
+  
   return (
     <div>
       <input 
-        className = "text-center"
-        type="number"
-        value={props.guess ?? ''}
-        onChange={(e) => {
-          props.setGuess(parseInt(e.target.value));
-          //Note the weird error messages in console if type number, then clear field
+        type="button"
+        value="Start Quiz"
+        onClick={(e) => {
+          if (props.validateSettings) {
+            props.setStartClicked(true);
+          } else {
+            console.log("Please enter an integer timeLimit > 0 & numQuestions > 0!");
+            setStartAttemptRejected(true);
+          }
+          
         }}
       />
+      <br/>
+      {startAttemptRejected && <p>Quiz Settings invalid: please enter positive integer values then try again!</p>}
     </div>
   )
 }
 
-function Question(props: {num1: number, num2: number}) {
-  return (
-    <>
-      What is {props.num1} x {props.num2}?
-    </>
-  )
-}
 
 
-
-function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
-  return (
-    <>
-      <label>
-
-        <input 
-          type="button"
-          value="Check answer:"
-          onClick={(e) => {
-            props.setAnswerChecked(true);
-          }}
-        />
-      </label>
-    </>
-  )
-}
-
-function DisplayResult(props: {correct: boolean}) {
-  return (
-    <>
-      {props.correct ? 'Correct!' : 'Wrong!'}
-    </>
-  )
-}
-
-
-//genRandNum() generates a random integer in the inclusive range between 'min' and 'max'
-function genRandNum(min: number, max: number): number {
-  //delta = magnitude of the range from min to max 
-  const delta = max-min;
-  //Generate a random floating-point num in range 0 (inclusive) to 1 (excluding)
-  const randNum = Math.random();
-  //Scale randNum to fall within delta range
-  const randScaled = randNum * (delta + 1);
-  //translate randScaled so it's in the range between min and max
-  const randTranslated = randScaled + min;
-  //round down to integer
-  const floored = Math.floor(randTranslated);
-  return floored;
-}
-
-//Test genRandNum() to confirm numbers fall within range
-function testRandFunc() {
- for (let i=0; i<30; i++) {
-  console.log(i,": ",genRandNum(0,10));
- }
-}
-
-
-export default App;
