@@ -9,13 +9,19 @@ import { EnterSettings } from './EnterSettings';
 
 
 
-
 //Get settings from user then render the quiz, finally display results to user
 function App() {
   //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
   const [timeLimit, setTimeLimit] = useState<number>(10);
+  /*
+  const [numQuestions, setNumQuestions] = useState<number>(10);
+  const [upperBound, setUpperBound] = useState<number>(1);
+  const [lowerBound, setLowerBound] = useState<number>(10);
+  */
   //paramsEntered
   const [doneSettings, setDoneSettings] = useState(false);
+
+
 
 
   return (
@@ -35,3 +41,23 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+/*
+interface Settings {
+  timeLimit: number;
+  numQuestions: number;
+  upperBound: number;
+  lowerBound: number;
+}
+
+const initEntryProps: EnterSettingsProps = {
+  timeLimit: timeLimit,
+  numQuestions: numQuestions,
+  upperBound: upperBound,
+  lowerBound: lowerBound
+}
+*/
