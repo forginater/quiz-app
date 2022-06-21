@@ -43,20 +43,20 @@ export function Quiz(props: {timeLimit: number}) {
           <CountDown timeLimit={props.timeLimit} setTimeUp={setTimeUp} done={done}/>
       
           {/*After (done) freeze the Guess component, stop displaying the AnswerButton and DisplayResult*/}
-          {!done 
-            ? (<Guess guess={guess} setGuess={setGuess}/>) 
-            : (<GuessFrozen guess={guess}/>)
-          }
-          
-          {!done 
-            ? (<AnswerButton setAnswerChecked={setAnswerChecked}/>) 
-            : (<DisplayResult correct={guess===answer}/>)
-          }
-          
-          
+          {!done && (
+              <><Guess guess={guess} setGuess={setGuess}/>
+              <AnswerButton setAnswerChecked={setAnswerChecked}/></>
+          )}
+
+          {done && (
+              <><GuessFrozen guess={guess}/>
+              <DisplayResult correct={guess===answer}/></>
+          )}
       </div>
     );
   }
+
+
   
   //CountDown runs and displays a timer that counts down from props.timeLimit until it reaches 0
   //when timeRem reaches 0, it displays "Time Ran Out" and invokes props.setTimeUp(true) to signal to its parent component that the timer has finished
@@ -79,9 +79,11 @@ export function Quiz(props: {timeLimit: number}) {
     },[props.done, timeRem, setTimeUp]); //Had to destructure props outside of useEffect and add to dependency array in order to get rid of warning
     return (
       <div>
-        {timeRem > 0
-          ? <>Time Remaining: {timeRem} seconds</>
-          : <>Time ran out</>
+        {timeRem > 0 && 
+          <>Time Remaining: {timeRem} seconds</>
+        }
+        {!(timeRem > 0) && 
+          <>Time ran out</>
         }
       </div>
     )
@@ -90,10 +92,12 @@ export function Quiz(props: {timeLimit: number}) {
   function CountDownFrozen(props: {timeRem: number}) {
     return (
         <div>
-          {props.timeRem > 0
-            ? <>Time Remaining: {props.timeRem} seconds</>
-            : <>Time ran out</>
+          {props.timeRem > 0 && 
+            <>Time Remaining: {props.timeRem} seconds</>
           }
+          {!(props.timeRem > 0) && 
+            <>Time ran out</>
+          }            
         </div>
       )
 
