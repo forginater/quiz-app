@@ -3,13 +3,6 @@ import './App.css';
 import {useState, useEffect, useMemo} from 'react';
 
 /*
-TODO
-- [ ] Fix program logic in \<Quiz\> according to proposal below 
-- [ ] Prevent the timer from continuing to count down after the question has been answered
-- [ ] 1 second lag between CountDown completing and displaying the answer
-- [ ] Fix the CountDown display jumping from 10 to 8 seconds (appears to be about 2 seconds but need to check exact times)
-- [ ] Fix inability to backspace to empty field in custom timeLimit
-
 PROGRAM LOGIC
 done = answerChecked || timeUp
 if (done) => run timer & render guessfield
@@ -68,8 +61,7 @@ export function Quiz(props: {timeLimit: number}) {
   //CountDown runs and displays a timer that counts down from props.timeLimit until it reaches 0
   //when timeRem reaches 0, it displays "Time Ran Out" and invokes props.setTimeUp(true) to signal to its parent component that the timer has finished
   function CountDown(props: {timeLimit: number, done: boolean, setTimeUp: (n: boolean) => void}) {
-    //Set timeRem to value passed from timeLimit, if timeLimit is NaN
-    console.log("COUTNDOWN: tried to assign NaN to timeRem >> ",isNaN(props.timeLimit) )
+    //Set timeRem to value passed from timeLimit, timeLimit shouldn't be NaN based on input validation from <EnterSettings> but if it is <CountDown> will setTimeUp(true) on first iteration
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     const setTimeUp = props.setTimeUp;
     
@@ -107,11 +99,6 @@ export function Quiz(props: {timeLimit: number}) {
 
   }
   
-  /*
-  function updateGuess(f: (e: any, set: (n: number|undefined) => void) => void): any {
-    set.(parseInt(e.target.value));
-  }
-  */
 
   function GuessFrozen(props: {guess: number|undefined}) {
     return (

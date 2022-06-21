@@ -5,16 +5,6 @@ import { Quiz } from './Quiz';
 import { EnterSettings } from './EnterSettings';
 
 
-/*
-  Issue11: 
-    TODO
-    - Start with a hardcoded limit of 10 seconds
-    - Display the number of seconds left
-    - Have the number of seconds left get updated
-    - When the timer hits zero, tell the user they ran out of time
-    - Allow the user to set a custom time duration
-*/
-
 
 
 
@@ -43,9 +33,5 @@ function App() {
     </div>
   )
 }
-
-
-
-
 
 export default App;
