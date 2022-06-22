@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {useState, useEffect, useMemo} from 'react';
+import {useState, useEffect} from 'react';
 
 /*
 PROGRAM LOGIC
@@ -16,6 +16,7 @@ let upperBound = 10;
 //Generate 2 random numbers within lowerBound-upperBound
 const num1 = genRandNum(lowerBound, upperBound);
 const num2 = genRandNum(lowerBound, upperBound);
+
 
 
 
