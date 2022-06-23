@@ -3,6 +3,7 @@ import './App.css';
 import {useState, useEffect} from 'react';
 import { Quiz } from './Quiz';
 import { EnterSettings } from './EnterSettings';
+import { BattleField } from './BattleField';
 
 
 
@@ -42,7 +43,7 @@ function App() {
             <StartButton setStartClicked={setStartClicked} validateSettings={settingsValid} />
         </>
         }
-        {startClicked && <Quiz timeLimit={timeLimit}/>}
+        {startClicked && <BattleField timeLimit={timeLimit} numQuestions={numQuestions} />}
         {/*To IMPLEMENT: Once quiz has been completed: display results*/}
         
       </div>
