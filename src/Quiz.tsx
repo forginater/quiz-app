@@ -34,6 +34,8 @@ export function Quiz(props: {timeLimit: number}) {
   
     return (
       <div className="App">
+
+          <h3>Smart Quiz:</h3>
           <br/>
           <h3>Your Suffering has just begun!</h3>
 
