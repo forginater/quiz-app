@@ -21,7 +21,7 @@ function App() {
   //if the settings are invalid a warning message will be displayed in <StartButton>
   const [startClicked, setStartClicked] = useState<boolean>(false)
   //validateSettings used by <StartButton> to make sure timeLimit & numQuestions have valid input values, this is used by 
-  let validateSettings = !Number.isNaN(timeLimit) && !Number.isNaN(numQuestions);
+  const settingsValid = !Number.isNaN(timeLimit) && !Number.isNaN(numQuestions);
 
 
   return (
@@ -39,7 +39,7 @@ function App() {
               setTimeLimit={setTimeLimit} 
               setNumQuestions={setNumQuestions}
             />
-            <StartButton setStartClicked={setStartClicked} validateSettings={validateSettings} />
+            <StartButton setStartClicked={setStartClicked} validateSettings={settingsValid} />
         </>
         }
         {startClicked && <Quiz timeLimit={timeLimit}/>}

@@ -88,20 +88,6 @@ export function Quiz(props: {timeLimit: number}) {
       </div>
     )
   }
-
-  function CountDownFrozen(props: {timeRem: number}) {
-    return (
-        <div>
-          {props.timeRem > 0 && 
-            <>Time Remaining: {props.timeRem} seconds</>
-          }
-          {!(props.timeRem > 0) && 
-            <>Time ran out</>
-          }            
-        </div>
-      )
-
-  }
   
 
   function GuessFrozen(props: {guess: number|undefined}) {
