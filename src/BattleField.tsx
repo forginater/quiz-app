@@ -37,6 +37,8 @@ TODO:
     - Allow the user to set a custom time duration
 */
 
+
+
   //Hardcode upper and lower bounds
   let lowerBound = 0;
   let upperBound = 10;
@@ -45,17 +47,59 @@ TODO:
   const num2 = genRandNum(lowerBound,upperBound);
 
 
+/*Battlefied will coordinate quiz questions
+Tasks
+(0) INITIALISE QUIZ: 
+    - Generate [(rand1,rand2), ....] with length n for each question
+    - Setup data structures
+THEN
+(1) COORDINATE THE QUIZ:
+    For each question
+    - Run Timer & display <Quiz>
+    - once timeUp || correct answer 
+        then,
+    - Start another timer for delayTime seconds
+    - display results
+    - Record result
+    -> setNextQuestion().... use this to update state that will in turn trigger
+    a rerender.... use this to rerender BattleField where some aspect of state 
+    will update & in turn 
+    ** REPEAT n times
+*/
+
+/* 
+Basic functionality of Clock
+    Purpose: to display a time and count down until timeRem = 0
+    props: timeLimit, 
+*/
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
+    
+    
+    //Setup state
+    //generate questions
+    
     return (
         <>
+            {/* */}
+            {/*Phase1: start QuizClock & render question*/}
+            {/*Phase2: start PostClock & render result */}
+            
             <QuizDumb num1={num1} num2={num2}/>
             <Quiz timeLimit={props.timeLimit} />
         </>
     )
-
 }
 
-function Timer() {
+//Trying to make Timer dumb, it just counts down based on timeLimit, 
+//Parent BattleGround will do the thinking about when to stop
+function Timer(props: {timeLimit: number}) {
+    const [timeRem, setTimeRem] = useState(props.timeLimit);
+
+    useEffect(() => {
+        setTimeout(() => {
+            
+        })
+    })
     return (
         <>
         </>
