@@ -52,8 +52,14 @@ interface Question {
 
 
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
-
-
+    //questData contains num1, num2, final guess & outcome for each Question
+    const [questData, setQuestData] = useState<Question[]>(questionsInit);
+    //currentIndex: the index of the current question from questData
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    //timerDone => the timeLimit for this question has elapsed, 
+    //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
+    const [guessedCorrect, setGuessedCorrect] = useState();
+    //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
     
