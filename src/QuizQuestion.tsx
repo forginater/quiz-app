@@ -20,8 +20,6 @@ export function QuizQuestion(props: {num1: number, num2: number}) {
   const answer = props.num1 * props.num2;
 
   
-  const guessCorrect = guess===answer;
-  //<GuessFrozen guess={guess}/>
 
 
   return (
@@ -32,9 +30,6 @@ export function QuizQuestion(props: {num1: number, num2: number}) {
         {/*Question:*/}
         <Question num1={props.num1} num2={props.num2}/>
 
-        {/*Answer field*/}
-        
-
         {/*Check answer button*/}
         {!answerChecked && (
           <>  
@@ -42,22 +37,34 @@ export function QuizQuestion(props: {num1: number, num2: number}) {
             <AnswerButton setAnswerChecked={setAnswerChecked}/> 
           </>
         )}
-        
-        
-        
-        {/*Result of answer*/}
+
+        {/*If (answerChecked) then:
+          (1) replace AnswerButton => with DisplayResult
+          (2) if (guessedCorrect) Freeze the guess input field (by replacing Guess with GuessFrozen)
+        */}
         {answerChecked && 
         <>
-          {(!guessCorrect) && <><Guess guess={guess} setGuess={setGuess}/></>}
-          {(guessCorrect) && <><GuessFrozen guess={guess} /></>}
-          <DisplayResult correct={guessCorrect}/>
-        </>}
+          {guess!==answer && (<Guess guess={guess} setGuess={setGuess}/>)}
+          {guess===answer && (<GuessFrozen guess={guess} />)}
+          <DisplayResult correct={guess===answer}/>
+        </>}  
     </div>
-        
-        
-
   );
 }
+
+/* 
+        
+        {answerChecked && 
+          <>
+            {(!guessCorrect) && <><Guess guess={guess} setGuess={setGuess}/></>}
+            {(guessCorrect) && (<>
+            <GuessFrozen guess={guess} />
+            <DisplayResult correct={guessCorrect}/>
+            </>)}
+            
+          </>}
+*/
+
 //Check answer => display result
 //if correct answer => freeze field
 //(!answerChecked) => Guess & AnswerButton
@@ -95,6 +102,7 @@ function GuessFrozen(props: {guess: number|undefined}) {
         className = "text-center"
         type="number"
         value={props.guess ?? ''}
+        onChange={() => {console.log()}}
       />
     </div>
   )

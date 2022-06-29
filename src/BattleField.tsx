@@ -26,14 +26,14 @@ Things to note
 */
 
 //outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
-type outcome = undefined | 'Correct' | 'Incorrect';
+type outcome = undefined | 'Correct' | 'Incorrect' | 'TimeUp';
 
-//'Question' interface used to store a question, guess & the outcome for each individual quiz question
+//for each individual quiz question, 'Question' interface used to store the numbers used to form the question , the latest guess & the outcome 
 interface Question {
     num1: number;
     num2: number;
     guess: number|undefined;
-    outcome: outcome;
+    outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
 
@@ -54,12 +54,11 @@ interface Question {
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
 
 
-    const [questData, setQuestData] = useState<Question[]>(questionsInit);
     const [timerDone, setTimerDone] = useState(false);
+
     
     return (
         <div>
-            {JSON.stringify(questionsInit,null,4)}
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
@@ -67,6 +66,9 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
             <QuizQuestion 
                 num1={num1} 
                 num2={num2}
+            />
+            <Quiz 
+             timeLimit={props.timeLimit}                                 
             />
         </div>
     )
