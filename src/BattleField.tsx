@@ -58,13 +58,16 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     //timerDone => the timeLimit for this question has elapsed, 
     //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
-    const [guessedCorrect, setGuessedCorrect] = useState();
+    const [guessedCorrect, setGuessedCorrect] = useState(false);
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
+    console.log("guessedCorrect:\n  => ",guessedCorrect);
     
     return (
         <div>
+            <h1>guessedCorrect:: {JSON.stringify(guessedCorrect,null,4)}</h1>
+            
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
@@ -72,9 +75,7 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
             <QuizQuestion 
                 num1={num1} 
                 num2={num2}
-            />
-            <Quiz 
-             timeLimit={props.timeLimit}                                 
+                setGuessedCorrect={setGuessedCorrect}
             />
         </div>
     )
@@ -83,6 +84,7 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
 function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     useEffect(() => {
+        
         setTimeout(() => {
             if (timeRem > 0) {
                 setTimeRem((timeRem) => timeRem - 1);
@@ -90,7 +92,7 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
                 props.setTimerDone((true));
             }
         },1000)
-    },[timeRem,props])
+    },[timeRem])
     return (
         <>
                 {timeRem > 0 && <>Time Remaining: {timeRem} seconds</>}
