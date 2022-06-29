@@ -67,12 +67,29 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
+    //destructure num1 & num2 from currentQuestion
+    const {num1,num2} = questData[currentIndex]  
+    const thisQuestion = questData[currentIndex];  
 
     
     return (
         <div>
+            <label>
+                Change Index:
+                <input 
+                    type="number"
+                    value={currentIndex}
+                    onChange={(e) => {setCurrentIndex(parseInt(e.target.value))}}
+                />
+            </label>
+            <br />
+            <h5>thisQuestion:: {JSON.stringify(thisQuestion,null,4)}</h5>
+            <br />
+            <h5>questData:: {JSON.stringify(questData,null,4)}</h5>
+            <br />
             <h1>guessedCorrect:: {JSON.stringify(guessedCorrect,null,4)}</h1>
-            
+            <br />
+
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
