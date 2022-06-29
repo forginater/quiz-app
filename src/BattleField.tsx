@@ -6,6 +6,7 @@ import {useState, useEffect} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
 import {QuizDumb} from './QuizDumb';
+import {QuizQuestion} from './QuizQuestion';
 
 
 /* 
@@ -52,8 +53,14 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     
     return (
         <div>
-            <Timer timeLimit={props.timeLimit} setTimerDone={setTimerDone} />
-            <QuizDumb num1={num1} num2={num2}/>
+            <Timer 
+                timeLimit={props.timeLimit} 
+                setTimerDone={setTimerDone} 
+            />
+            <QuizQuestion 
+                num1={num1} 
+                num2={num2}
+            />
         </div>
     )
 }

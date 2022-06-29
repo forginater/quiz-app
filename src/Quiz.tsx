@@ -31,7 +31,7 @@ export function Quiz(props: {timeLimit: number}) {
 
     const done = timeUp || answerChecked;
 
-  
+    
     return (
       <div className="App">
 

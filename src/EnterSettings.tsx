@@ -7,7 +7,7 @@ import {useState, useEffect} from 'react';
 export function EnterSettings(props: {timeLimit: number, numQuestions: number, setTimeLimit: (n: number) => void, setNumQuestions: (x: number) => void}) {
   return (
       <div>
-        <h3>Enter Quiz Settings:</h3>
+        <h3>Enter Quiz Settings: SUCK MA BALL</h3>
         <label>
           Enter time limit in seconds:
           <input 

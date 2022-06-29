@@ -11,7 +11,7 @@ import {useState} from 'react';
 
 
 
-export function QuizQuestion(props: {num1: number, num2: number, setOutcome: any}) {
+export function QuizQuestion(props: {num1: number, num2: number}) {
   
   const [guess,setGuess] = useState<number|undefined>();
   const [answerChecked, setAnswerChecked] = useState(false);
@@ -20,37 +20,49 @@ export function QuizQuestion(props: {num1: number, num2: number, setOutcome: any
   const answer = props.num1 * props.num2;
 
   
+  const guessCorrect = guess===answer;
+  //<GuessFrozen guess={guess}/>
 
 
   return (
-    <div className="App">
-      <header className="App-header">
 
+    <div>
       <h3>Dumb Quiz:</h3>
-
-        
-
 
         {/*Question:*/}
         <Question num1={props.num1} num2={props.num2}/>
 
         {/*Answer field*/}
-        <Guess guess={guess} setGuess={setGuess}/>
+        
 
         {/*Check answer button*/}
-        <AnswerButton setAnswerChecked={setAnswerChecked}/>
-
+        {!answerChecked && (
+          <>  
+            <Guess guess={guess} setGuess={setGuess}/>
+            <AnswerButton setAnswerChecked={setAnswerChecked}/> 
+          </>
+        )}
+        
+        
+        
         {/*Result of answer*/}
-        {answerChecked && (
-          <DisplayResult correct={guess===answer}/>    
-          )
-        }
-        
-        
-      </header>
+        {answerChecked && 
+        <>
+          {(!guessCorrect) && <><Guess guess={guess} setGuess={setGuess}/></>}
+          {(guessCorrect) && <><GuessFrozen guess={guess} /></>}
+          <DisplayResult correct={guessCorrect}/>
+        </>}
     </div>
+        
+        
+
   );
 }
+//Check answer => display result
+//if correct answer => freeze field
+//(!answerChecked) => Guess & AnswerButton
+//(answerChecked && Incorrect) => Guess & Result
+//(answerChecked && Correct) => Freeze & Result
 
 function Question(props: {num1: number, num2: number}) {
   return (
@@ -71,6 +83,18 @@ function Guess(props: {guess: number | undefined, setGuess: (n:number|undefined)
           props.setGuess(parseInt(e.target.value));
           //Note the weird error messages in console if type number, then clear field
         }}
+      />
+    </div>
+  )
+}
+
+function GuessFrozen(props: {guess: number|undefined}) {
+  return (
+    <div>
+      <input 
+        className = "text-center"
+        type="number"
+        value={props.guess ?? ''}
       />
     </div>
   )

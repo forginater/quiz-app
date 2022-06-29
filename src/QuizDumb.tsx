@@ -30,10 +30,15 @@ export function QuizDumb(props: {num1: number, num2: number}) {
         <Question num1={props.num1} num2={props.num2}/>
 
         {/*Answer field*/}
-        <Guess guess={guess} setGuess={setGuess}/>
+        
 
         {/*Check answer button*/}
-        <AnswerButton setAnswerChecked={setAnswerChecked}/>
+        {!answerChecked && (
+          <>  
+            <Guess guess={guess} setGuess={setGuess}/>
+            <AnswerButton setAnswerChecked={setAnswerChecked}/> 
+          </>
+        )}
 
         {/*Result of answer*/}
         {answerChecked && (
