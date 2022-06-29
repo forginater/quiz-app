@@ -62,7 +62,7 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
-    console.log("guessedCorrect:\n  => ",guessedCorrect);
+
     
     return (
         <div>

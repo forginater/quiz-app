@@ -21,20 +21,15 @@ export function QuizQuestion(props: {num1: number, num2: number, setGuessedCorre
   //handleGuess() updates the guess value when a new value is inputted
   //If the guess is correct && AnswerButton has been clicked, then props.setGuessedCorrect is called
   //CONCERN: this guessHandler is a bit ugly and it's possibly muddling up separation of concerns 
-
   function handleGuess(newGuess: number) {
     //setGuess: (n:number|undefined) => void
     console.log("handleGuess() called:")
     setGuess(newGuess);
-    //PROBLEM: original condition to update newGuess (newGuess===answer && answerChecked) 
-    //However, this is undermined by the issue of stale data as answerChecked won't be updated until after the instance of QuizQuestion() that
-    //is calling handleGuess()
     if (newGuess===answer) { 
-      console.log("INNER CONDITION");
+      console.log("INNER CONDITION: setGuessedCorrect(true)\n   => answerChecked: ",answerChecked,'\n   => guess: ',guess,'\n   => newGuess: ',newGuess);
       props.setGuessedCorrect(true);
     }
-    
-    
+    //PROBLEM: unable to check (newGuess===answer && answerChecked).... Problem outlined in notes at bottom of file
   }
 
   return (
@@ -130,3 +125,15 @@ function DisplayResult(props: {correct: boolean}) {
     </>
   )
 }
+
+
+
+
+/*##########################################################################################
+//Notes on handleGuess() issue of:
+//original condition to update newGuess (newGuess===answer && answerChecked) 
+    //However, this is undermined by the issue of stale data as answerChecked won't be updated until after the instance of QuizQuestion() that
+    //is calling handleGuess()
+    //if answerChecked clicked on wrong answer, then correct answer entered, possible to get both values
+    //However, if click on CheckAnswer, with correct answer entered into guess, then answerChecked will be stuck on false (according to this stale render)
+##########################################################################################*/
