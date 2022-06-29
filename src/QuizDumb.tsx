@@ -11,7 +11,7 @@ import {useState} from 'react';
 
 
 
-function QuizDumb(props: {num1: number, num2: number}) {
+export function QuizDumb(props: {num1: number, num2: number}) {
   
   const [guess,setGuess] = useState<number|undefined>();
   const [answerChecked, setAnswerChecked] = useState(false);
@@ -22,9 +22,8 @@ function QuizDumb(props: {num1: number, num2: number}) {
   
 
   return (
-    <div className="App">
-      <header className="App-header">
 
+    <div>
       <h3>Dumb Quiz:</h3>
 
         {/*Question:*/}
@@ -41,10 +40,10 @@ function QuizDumb(props: {num1: number, num2: number}) {
           <DisplayResult correct={guess===answer}/>    
           )
         }
-        
-        
-      </header>
     </div>
+        
+        
+
   );
 }
 
@@ -92,11 +91,8 @@ function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
 function DisplayResult(props: {correct: boolean}) {
   return (
     <>
+      <br/>
       {props.correct ? 'Correct!' : 'Wrong!'}
     </>
   )
 }
-
-
-
-export default QuizDumb;

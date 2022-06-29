@@ -11,21 +11,25 @@ import {useState} from 'react';
 
 
 
-function QuizQuestion(props: {num1: number, num2: number}) {
+export function QuizQuestion(props: {num1: number, num2: number, setOutcome: any}) {
   
   const [guess,setGuess] = useState<number|undefined>();
   const [answerChecked, setAnswerChecked] = useState(false);
   //const [correctamundo, setCorrectamundo ] = useState();
   //const [quizDone]
   const answer = props.num1 * props.num2;
+
   
-  
+
 
   return (
     <div className="App">
       <header className="App-header">
 
       <h3>Dumb Quiz:</h3>
+
+        
+
 
         {/*Question:*/}
         <Question num1={props.num1} num2={props.num2}/>
@@ -96,7 +100,3 @@ function DisplayResult(props: {correct: boolean}) {
     </>
   )
 }
-
-
-
-export default QuizQuestion;
