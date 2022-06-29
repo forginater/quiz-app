@@ -44,16 +44,21 @@ interface Question {
     const num1 = genRandNum(lowerBound,upperBound);
     const num2 = genRandNum(lowerBound,upperBound);
 
-    const questionsInit: Question[] = Array(10).fill(undefined).map((question) => {
+
+
+//getQuestData() builds the initial input for the questData useState hook with numQuestions * Question objects
+function getQuestData(numQuestions: number): Question[] {
+    return Array(numQuestions).fill(undefined).map((question) => {
         return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
-        };
-    });
+    };
+})
+}
 
 
 
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
     //questData contains num1, num2, final guess & outcome for each Question
-    const [questData, setQuestData] = useState<Question[]>(questionsInit);
+    const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
     //currentIndex: the index of the current question from questData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     //timerDone => the timeLimit for this question has elapsed, 
@@ -104,9 +109,13 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
 
 
 
+//Initialise questionsData with a variable
+const questionsInit: Question[] = Array(10).fill(undefined).map((question) => {
+    return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
+    };
+});
 
-
-
+//Testing out questionsInit data structure
 const testQuestionsInit = () => (() => {
     const nerd = questionsInit.map((quest,i) => {
         console.log(`mapping ${i}:  \n   =>`,JSON.stringify(quest,null,4));
