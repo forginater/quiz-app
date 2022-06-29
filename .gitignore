@@ -2,6 +2,7 @@
 
 #ignore scrap.md
 /src/scrap.md
+/src/repeat.tsx
 
 # dependencies
 /node_modules
