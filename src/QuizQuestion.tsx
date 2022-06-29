@@ -11,7 +11,7 @@ import {useState} from 'react';
 
 
 
-function QuizDumb(props: {num1: number, num2: number}) {
+function QuizQuestion(props: {num1: number, num2: number}) {
   
   const [guess,setGuess] = useState<number|undefined>();
   const [answerChecked, setAnswerChecked] = useState(false);
@@ -99,4 +99,4 @@ function DisplayResult(props: {correct: boolean}) {
 
 
 
-export default QuizDumb;
+export default QuizQuestion;

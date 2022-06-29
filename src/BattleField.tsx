@@ -4,7 +4,7 @@ import React from 'react';
 import './App.css';
 import {useState, useEffect} from 'react';
 import { Quiz } from './Quiz';
-import QuizDumb from './QuizDumb';
+import QuizDumb from './QuizQuestion';
 import {genRandNum} from './genRandNum';
 
 
@@ -73,37 +73,107 @@ Basic functionality of Clock
     props: timeLimit, 
 */
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
+    /*Phase0: Setup state & getQuestions  */
+    const [timerDone, setTimerDone] = useState(false);
+    //const [gotCorrect, setGotCorrect] = useState<boolean|undefined>();
     
-    
-    //Setup state
-    //generate questions
-    
+    const quizActive = !timerDone // || gotCorrect
+    //setGotCorrect: (x: boolean|undefined) => void
+    //setGotCorrect={setGotCorrect}
     return (
         <>
             {/* */}
             {/*Phase1: start QuizClock & render question*/}
-            {/*Phase2: start PostClock & render result */}
             
-            <QuizDumb num1={num1} num2={num2}/>
-            <Quiz timeLimit={props.timeLimit} />
+            {quizActive &&
+                <div>
+                <TimerQuiz timeLimit={props.timeLimit} setTimerDone={setTimerDone} />
+                <QuizDumb num1={num1} num2={num2}/>
+                </div>
+            }
+            
+            {!quizActive &&
+            <>
+            <TimerQuiz timeLimit={props.timeLimit} setTimerDone={setTimerDone} />
+            <ShowQuizResult />
+            </>
+            }
+            
+            
+
+            {/*Phase2: questDone => start PostClock & render result */}
+            
+            
         </>
+    )
+    //<Quiz timeLimit={props.timeLimit} />
+}
+
+
+
+function ShowQuizResult(props: any) {
+    return (
+        <></>
     )
 }
 
+
 //Trying to make Timer dumb, it just counts down based on timeLimit, 
-//Parent BattleGround will do the thinking about when to stop
-function Timer(props: {timeLimit: number}) {
+//Parent BattleGround will do the thinking about coordinating TimerQuiz multiple times... But just get it working for issue 11
+
+//What do I need to add to QuizDumb to make it work with issue 11?
+/*
+    - display countDown time
+    - make done = ( timeUp || answered )
+
+    IMPLEMENTATION:
+    decrement timeRem() for each second & display Quiz somewhere
+    
+    //Design CHOICE: put <QuizDumb> inside of <TimerQuiz>... or pass up the info (timeUp) to <BattleField> & 
+    //let it coordinate between them... Probably second option better as more modular, but first is more naive
+*/
+
+function TimerQuiz(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
+    console.log("initial timeRem:",timeRem);
+    //const [timeUp, setTimeUp] = useState('false');
+    //questDone => true, when timeUp (for now), later need to think about question answered
+    //const [questDone, setQuestDone] = useState(false);
+
+    //Due to exhaustive-deps error... missing dependencies, had to destructure props outside of useEffect()
+    //const {timeLimit, setTimerDone} = props;
+
 
     useEffect(() => {
         setTimeout(() => {
-            
-        })
-    })
+            if (timeRem > 0) {
+                setTimeRem((timeRem) => timeRem - 1);
+            } else {
+                console.log('useEffect: ==>> timeRem now = 0....');
+                props.setTimerDone((true));
+            }
+        },1000)
+    },[timeRem,props])
     return (
         <>
+            {timeRem > 0 && 
+            <>Time Remaining: {timeRem} seconds</>
+            }
+            {!(timeRem > 0) && 
+            <>Time ran out</>
+            }
         </>
     )
 }
 
 
+
+
+
+/* 
+            timeLimit: {props.timeLimit}
+            <br />
+            timeRem: {JSON.stringify(timeRem,null,4)}
+            <br /><br />
+
+*/
