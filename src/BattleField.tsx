@@ -5,54 +5,61 @@ import './App.css';
 import {useState, useEffect} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
-import {QuizDumb} from './QuizDumb';
 import {QuizQuestion} from './QuizQuestion';
 
 
 /* 
 ##########################################################################################
-Issue11: Changes Requested
-@@@@@
-I think part of the complexity here is that your timer is buried too deep inside the application. 
-I would move all time related code right up to the top-most component, eg. . This means that:
-    (1)BattleGround can run the "coordinator" function of knowing when time is up, etc.
-    (2) Quiz is dumb, it just gets given a question/answer, it has no idea about time
-    (3) CountDown can then be extracted from Quiz"
-@@@@@
-my main criticism is that the "control logic" of the program is buried too deeply in the application. 
-It should be extracted to the "top" so that the display components (eg. Quiz, CountDown) can focus purely on their own task. 
-
-A good pattern to remember:
-    - Try to limit the "logic" and "state" parts of your application as much as possible
-    - One smart component and many "dumb" components is usually preferable
-
+TODO:
+    - Start with a hardcoded 10 questions
+    - Display the user's progress (eg. x / 10 questions)
+    - Once the user answers a question successfully, or the timer has elapsed, ask the next one
+    - If they got all the questions right, display the results
+    - Allow user to modify the number of questions asked
 ##########################################################################################
 */
 
 /*
-TODO:
-    - Start with a hardcoded limit of 10 seconds
-    - Display the number of seconds left
-    - Have the number of seconds left get updated
-    - When the timer hits zero, tell the user they ran out of time
-    - Allow the user to set a custom time duration
+Things to note
+    questionDone = guessedCorrectly || timeUp
+    only display results if progress == 10/10
 */
 
+//outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
+type outcome = undefined | 'Correct' | 'Incorrect';
+
+//'Question' interface used to store a question, guess & the outcome for each individual quiz question
+interface Question {
+    num1: number;
+    num2: number;
+    guess: number|undefined;
+    outcome: outcome;
+}
 
 
-  //Hardcode upper and lower bounds
-  let lowerBound = 0;
-  let upperBound = 10;
-  //Generate 2 random numbers within lowerBound-upperBound
-  const num1 = genRandNum(lowerBound,upperBound);
-  const num2 = genRandNum(lowerBound,upperBound);
+    //Hardcode upper and lower bounds
+    let lowerBound = 0;
+    let upperBound = 10;
+    //Generate 2 random numbers within lowerBound-upperBound
+    const num1 = genRandNum(lowerBound,upperBound);
+    const num2 = genRandNum(lowerBound,upperBound);
+
+    const questionsInit: Question[] = Array(10).fill(undefined).map((question) => {
+        return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
+        };
+    });
+
 
 
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
+
+
+    const [questData, setQuestData] = useState<Question[]>(questionsInit);
     const [timerDone, setTimerDone] = useState(false);
     
     return (
         <div>
+            {JSON.stringify(questionsInit,null,4)}
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
@@ -87,3 +94,14 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
 
 
 
+
+
+
+const testQuestionsInit = () => (() => {
+    const nerd = questionsInit.map((quest,i) => {
+        console.log(`mapping ${i}:  \n   =>`,JSON.stringify(quest,null,4));
+        console.log('   => length: ',Object.keys(quest).length);
+        let retArr = Object.values(quest).map((val) => {return val});
+        console.log('   => values: ',retArr);
+    });
+})();
