@@ -2,10 +2,11 @@
 
 import React from 'react';
 import './App.css';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
 import {QuizQuestion} from './QuizQuestion';
+import { count } from 'console';
 
 
 /* 
@@ -55,7 +56,14 @@ function getQuestData(numQuestions: number): Question[] {
 }
 
 
+/*BattleField() coordinates running multiple questions with time delays and records the results
+    - When (guessedCorrect || timerDone)  
+        (1) update questData (guess & outcome)
+        (2) currentIndex++;
+    - When currentIndex is incremented =>
+        (1) resets <Timer> & (2) triggers a rerender of <QuizQuestion>
 
+*/
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
     //questData contains num1, num2, final guess & outcome for each Question
     const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
@@ -67,28 +75,37 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
+    //const [renderCount, setRenderCount] = useState(0);
+    const renderCount = useRef(0);
+    useEffect(() => {
+        renderCount.current = renderCount.current + 1;
+    });
+
     //destructure num1 & num2 from currentQuestion
-    const {num1,num2} = questData[currentIndex]  
+    const num1 = questData[currentIndex].num1;
+    const num2 = questData[currentIndex].num2;
+
     const thisQuestion = questData[currentIndex];  
 
+
+    //when this condition evaluates to true: update questData & increment currentIndex
+    const reduceThatFatMothafucka = (guessedCorrect || timerDone);
     
+    //update renderCount for every render
+
+    
+
     return (
         <div>
-            <label>
-                Change Index:
-                <input 
-                    type="number"
-                    value={currentIndex}
-                    onChange={(e) => {setCurrentIndex(parseInt(e.target.value))}}
-                />
-            </label>
             <br />
-            <h5>thisQuestion:: {JSON.stringify(thisQuestion,null,4)}</h5>
+            <h1>renderCount = {renderCount.current}</h1>
+            <h3>num1,num2:: {JSON.stringify([num1,num2],null,4)}</h3>
             <br />
-            <h5>questData:: {JSON.stringify(questData,null,4)}</h5>
+            <h3>questData:: {JSON.stringify(questData,null,4)}</h3>
             <br />
             <h1>guessedCorrect:: {JSON.stringify(guessedCorrect,null,4)}</h1>
             <br />
+            
 
             <Timer 
                 timeLimit={props.timeLimit} 
@@ -103,8 +120,14 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     )
 }
 
+
+
 function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
+    const renderCount = useRef(0);
+    useEffect(() => {
+        renderCount.current = renderCount.current + 1;
+    });
     useEffect(() => {
         
         setTimeout(() => {
@@ -117,6 +140,7 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
     },[timeRem])
     return (
         <>
+                <h1>ClockRender: {renderCount.current}</h1>
                 {timeRem > 0 && <>Time Remaining: {timeRem} seconds</>}
                 {!(timeRem > 0) && <>Time ran out</>}
             
@@ -141,3 +165,19 @@ const testQuestionsInit = () => (() => {
         console.log('   => values: ',retArr);
     });
 })();
+
+
+
+/*Managed to trigger this error: Warning: 
+    Cannot update a component (`BattleField`) while rendering a different component (`HandleIndex`). 
+    To locate the bad setState() call inside `HandleIndex`
+//<HandleIndex setCurrentIndex={setCurrentIndex} currentIndex={currentIndex} timerDone={timerDone} guessedCorrect={guessedCorrect}/>
+function HandleIndex(props: any) {
+    if (props.guessedCorrect || props.timerDone) {
+        props.setCurrentIndex(props.currentIndex + 1);
+    }
+    return (
+        <></>
+    )
+}
+*/
