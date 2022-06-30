@@ -4,9 +4,10 @@ import {useState} from 'react';
 
 
 /*
-  Issue5: 
-    - Get value from input box
-    - Check if matches answer
+Implementation 1.2: 
+  - Try not to change QuizQuestion
+  - Under certain conditions, props.call setGuessCorrect(outcome: boolean) {...} to signal to BattleField that question has been answered.
+  - Had some issues with this implementation
 */
 export type reactEvent = React.ChangeEvent<HTMLInputElement>;
 
