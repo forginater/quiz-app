@@ -69,11 +69,14 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
     //currentIndex: the index of the current question from questData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
-    //timerDone => the timeLimit for this question has elapsed, 
-    //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
-    const [guessedCorrect, setGuessedCorrect] = useState(false);
+    
+    //guessSubmitted: After (guessAnswered && guessLocal) ⇒ synchronise with guessField (local to QuizQuestion)
+    const [guessSubmitted, setGuessSubmitted] = useState<number|undefined>();
+
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
+
+    const [alt, setAlt] = useState<number|undefined>();
 
     //const [renderCount, setRenderCount] = useState(0);
     const renderCount = useRef(0);
@@ -85,37 +88,32 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     const num1 = questData[currentIndex].num1;
     const num2 = questData[currentIndex].num2;
 
-    const thisQuestion = questData[currentIndex];  
-
-
-    //when this condition evaluates to true: update questData & increment currentIndex
-    const reduceThatFatMothafucka = (guessedCorrect || timerDone);
-    
-    //update renderCount for every render
-
-    
-
-    return (
-        <div>
+    /* 
             <br />
             <h1>renderCount = {renderCount.current}</h1>
             <h3>num1,num2:: {JSON.stringify([num1,num2],null,4)}</h3>
             <br />
             <h3>questData:: {JSON.stringify(questData,null,4)}</h3>
             <br />
-            <h1>guessedCorrect:: {JSON.stringify(guessedCorrect,null,4)}</h1>
             <br />
-            
+    */
 
+    return (
+        <div>
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
             />
+
+            <h1>**guessSubmitted {JSON.stringify(guessSubmitted,null,4)}</h1>
+            <h1>**setALt {JSON.stringify(alt,null,4)}</h1>
             <QuizQuestion 
                 num1={num1} 
                 num2={num2}
-                setGuessedCorrect={setGuessedCorrect}
+                setGuessSubmitted={setGuessSubmitted}
+                setAlt={setAlt}
             />
+            
         </div>
     )
 }
@@ -138,9 +136,10 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
             }
         },1000)
     },[timeRem])
+    //<h1>ClockRender: {renderCount.current}</h1>
     return (
         <>
-                <h1>ClockRender: {renderCount.current}</h1>
+                
                 {timeRem > 0 && <>Time Remaining: {timeRem} seconds</>}
                 {!(timeRem > 0) && <>Time ran out</>}
             
