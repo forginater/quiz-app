@@ -4,10 +4,11 @@ import {useState} from 'react';
 
 
 /*
-Implementation 1.2: 
+Implementation 1.1: 
   - Try not to change QuizQuestion
-  - Under certain conditions, props.call setGuessCorrect(outcome: boolean) {...} to signal to BattleField that question has been answered.
-  - Had some issues with this implementation
+  - When (guessLocal && answerChecked) , call props.setGuessSubmitted(value: number) {...} to synchronise guessLocal with guessSubmitted in BattleField
+  - Do the boolean processing of the outcome in BattleField.... 
+  -   PROS: (1) can record the guesses and display them at the end (2) Can put the logic in BattleField
 */
 export type reactEvent = React.ChangeEvent<HTMLInputElement>;
 
