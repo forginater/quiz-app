@@ -1,15 +1,26 @@
 import React from 'react';
+import memo from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+import {MutateState} from './oldComps/MutateState';
+import {StaleCounter} from './oldComps/StaleCounter';
 import ReactDOM from 'react-dom/client';
+
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+
+
+
+
+const app = <App />;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <StaleCounter />
   </React.StrictMode>
 );
 
