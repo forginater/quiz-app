@@ -40,8 +40,8 @@ export function QuizQuestion(props: {num1: number, num2: number, setGuessSubmitt
   }
 
   //Kinda works:
-  //Unlike other handler, it updates immediately with current guessField value if click AnswerButton, however, if select all text and
-  //Can't delete it completely
+  //Unlike other handler, it updates immediately with current guessField value if click AnswerButton, however, if select all text and delete
+  //then SetAll keeps some of its values, it's not properly synced and seems to selectively be getting stale data.
   const syncHandler = () => {
     console.log("guessField: ", guessField);
     if (Number.isNaN(guessField)) {
@@ -57,7 +57,7 @@ export function QuizQuestion(props: {num1: number, num2: number, setGuessSubmitt
     <div>
       <h1>**GuessField: {JSON.stringify(guessField,null,4)}</h1>
 
-        {(answerChecked && guessField) && <Synchronise syncHandler={syncHandler} guessField={guessField} /> }
+        {(answerChecked) && <Synchronise syncHandler={syncHandler} guessField={guessField} /> }
         
         <SubmitWithEnter />
         {/*Question:*/}
