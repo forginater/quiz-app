@@ -88,9 +88,19 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
     const [guess,setGuess] = useState<number|undefined>();
     const [answerChecked, setAnswerChecked] = useState(false);
 
-
+    //derived state
+    const answer = num1 * num2; 
     
-
+    //setup handleGuess() function
+    //handleGuess will freeze when (answer===guess && answerChecked) || timeUp (later)
+    function handleGuess(newGuess: number|undefined): void {
+        if (answerChecked && answer===guess) { //later add timeUp
+            console.log("freeze guess field!!");
+        } else {
+            console.log("handleGuess() called:")
+            setGuess(newGuess);
+        }
+    };
     
 
     return (
@@ -103,9 +113,9 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
                 num1={num1} 
                 num2={num2}
                 guess={guess}
-                setGuess={setGuess}
                 answerChecked={answerChecked}
                 setAnswerChecked={setAnswerChecked}
+                handleGuess={handleGuess}
             />
         </div>
     )
