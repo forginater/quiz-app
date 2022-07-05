@@ -24,11 +24,18 @@ STRATEGY:
     - raiseState to BattleField.... Do all the logic in BattleField
 
 TASKS:
+    - remove guessedCorect    
     - raise state of [guess, setGuess] & answerChecked
+    - define props for BattleField, QuizQuestion
+    - update logic
+    - sort out timer stopping after correct guess 
 
 INTEGRATE from issue11-post-1.1
     - questionsInit() function to create useState(initial question data)
     - use submitWithEnter() event listener from
+
+LATER: 
+    - later: define props for EnterSettings, StartButton
 ##########################################################################################
 */
 
@@ -74,48 +81,20 @@ function getQuestData(numQuestions: number): Question[] {
 
 */
 export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
-    //questData contains num1, num2, final guess & outcome for each Question
-    const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
-    //currentIndex: the index of the current question from questData
-    const [currentIndex, setCurrentIndex] = useState<number>(0);
-    //timerDone => the timeLimit for this question has elapsed, 
-    //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
-    const [guessedCorrect, setGuessedCorrect] = useState(false);
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
 
-    //const [renderCount, setRenderCount] = useState(0);
-    const renderCount = useRef(0);
-    useEffect(() => {
-        renderCount.current = renderCount.current + 1;
-    });
-
-    //destructure num1 & num2 from currentQuestion
-    const num1 = questData[currentIndex].num1;
-    const num2 = questData[currentIndex].num2;
-
-    const thisQuestion = questData[currentIndex];  
+    //raise state
+    const [guess,setGuess] = useState<number|undefined>();
+    const [answerChecked, setAnswerChecked] = useState(false);
 
 
-    //when this condition evaluates to true: update questData & increment currentIndex
-    const reduceThatFatMothafucka = (guessedCorrect || timerDone);
     
-    //update renderCount for every render
 
     
 
     return (
         <div>
-            <br />
-            <h1>renderCount = {renderCount.current}</h1>
-            <h3>num1,num2:: {JSON.stringify([num1,num2],null,4)}</h3>
-            <br />
-            <h3>questData:: {JSON.stringify(questData,null,4)}</h3>
-            <br />
-            <h1>guessedCorrect:: {JSON.stringify(guessedCorrect,null,4)}</h1>
-            <br />
-            
-
             <Timer 
                 timeLimit={props.timeLimit} 
                 setTimerDone={setTimerDone} 
@@ -123,7 +102,10 @@ export function BattleField(props: {timeLimit: number, numQuestions: number}) {
             <QuizQuestion 
                 num1={num1} 
                 num2={num2}
-                setGuessedCorrect={setGuessedCorrect}
+                guess={guess}
+                setGuess={setGuess}
+                answerChecked={answerChecked}
+                setAnswerChecked={setAnswerChecked}
             />
         </div>
     )
@@ -189,4 +171,37 @@ function HandleIndex(props: any) {
         <></>
     )
 }
+*/
+
+
+
+
+
+
+
+
+/* 
+Removed from issue12-post-1.1
+
+    //questData contains num1, num2, final guess & outcome for each Question
+    const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
+    //currentIndex: the index of the current question from questData
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    //timerDone => the timeLimit for this question has elapsed, 
+    //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
+    const [guessedCorrect, setGuessedCorrect] = useState(false);
+
+
+    //const [renderCount, setRenderCount] = useState(0);
+    const renderCount = useRef(0);
+    useEffect(() => {
+        renderCount.current = renderCount.current + 1;
+    });
+
+    //destructure num1 & num2 from currentQuestion
+    const num1 = questData[currentIndex].num1;
+    const num2 = questData[currentIndex].num2;
+    //const thisQuestion = questData[currentIndex];  
+    //const done = (guessedCorrect || timerDone);
+
 */
