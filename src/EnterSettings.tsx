@@ -5,8 +5,12 @@ import {useState, useEffect} from 'react';
 export interface EnterSettingsProps {
   timeLimit: number; 
   numQuestions: number;
+  lowerBound: number;
+  upperBound: number
   setTimeLimit: (n: number) => void; 
   setNumQuestions: (x: number) => void;
+  setLowerBound: (n: number) => void;
+  setUpperBound: (n: number) => void;
 }
 
 //Quiz settings must be custom entered or the default settings accepted before quiz is started
@@ -27,7 +31,7 @@ export function EnterSettings(props: EnterSettingsProps) {
         </label>
         <br/><br/>
         <label>
-          Enter number of questions
+          Enter number of questions:
           <input 
             type="number"
             value={props.numQuestions ?? ''}
@@ -36,6 +40,28 @@ export function EnterSettings(props: EnterSettingsProps) {
             }}
           />
         </label>       
+        <br/><br/>
+        <label>
+          Enter lower bound:
+          <input 
+            type="number"
+            value={props.lowerBound ?? ''}
+            onChange={(e) => {
+              props.setLowerBound(parseInt(e.target.value));
+            }}
+          />
+        </label>  
+        <br/><br/>
+        <label>
+          Enter Upper bound:
+          <input 
+            type="number"
+            value={props.upperBound ?? ''}
+            onChange={(e) => {
+              props.setUpperBound(parseInt(e.target.value));
+            }}
+          />
+        </label>  
         <br/><br/>
       </div>
     )

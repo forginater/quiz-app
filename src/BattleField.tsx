@@ -138,13 +138,14 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
     });
     useEffect(() => {
         
-        setTimeout(() => {
+        const timerId = setTimeout(() => {
             if (timeRem > 0) {
                 setTimeRem((timeRem) => timeRem - 1);
             } else {
                 props.setTimerDone((true));
             }
-        },1000)
+        },1000);
+        return () => clearTimeout(timerId);
     },[timeRem])
     return (
         <>
