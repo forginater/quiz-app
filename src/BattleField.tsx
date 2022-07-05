@@ -86,19 +86,27 @@ export function BattleField(props: BattleFieldProps) {
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
     //currentIndex being asked in questionsData
-    const [currentIndex, setCurrentIndex] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
     
     /*SINGULAR START*/
     //THIS is probably a bad way to do it... 
     //But allows testing the component while I don't have multiple questions functionality
     const num1Ref = useRef(genRandNum(lowerBound,upperBound));
     const num2Ref = useRef(genRandNum(lowerBound,upperBound));
-    const num1 = num1Ref.current;
-    const num2 = num2Ref.current;
-    
+    const num1_ = num1Ref.current;
+    const num2_ = num2Ref.current;
     //Answer for this question
-    const answer = num1 * num2; 
+    //const answer = num1_ * num2_; 
     /*SINGULAR END*/
+
+    /*MULTI START*/
+    const num1 = questionsData[currentIndex].num1;
+    const num2 = questionsData[currentIndex].num2;
+    const answer = num1 * num2; 
+    //destructure current questionsData
+    //const {num1, num2, guess, outcome} = questionsData[currentIndex];
+
+
 
     
     //setup handleGuess() function
@@ -136,6 +144,12 @@ export function BattleField(props: BattleFieldProps) {
     )
 }
 
+function Coordinator(props: any) {
+    return (
+    <>
+    </>
+    )
+}
 
 interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
 function Timer(props: TimerProps) {
@@ -188,12 +202,6 @@ function getQuestData(numQuestions: number, lowerBound: number, upperBound: numb
 
 
 
-/*
-function questionsInit(lowerBound: number, upperBound: number): Question[] {Array(10).fill(undefined).map((question) => {
-    return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
-    };
-})};
-*/
 
 
 let questionsInit: (x: number, y: number) => Question[];
