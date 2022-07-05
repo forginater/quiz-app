@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {useState,useEffect,useRef} from 'react';
 
-function Outer() {
+export function Outer() {
     const [val,setVal] = useState(0);
     const outerRenderCount = useRef(0)
   

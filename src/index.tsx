@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 
 import {MutateState} from './oldComps/MutateState';
 import {StaleCounter} from './oldComps/StaleCounter';
+import {Outer} from './oldComps/StateDemonstration';
+import {Demo} from './oldComps/memoTutorial';
 import ReactDOM from 'react-dom/client';
 
 import './index.css';
@@ -15,12 +17,18 @@ import reportWebVitals from './reportWebVitals';
 
 const app = <App />;
 
+//tutorial demonstrations
+const mutateState = <MutateState />
+const staleCounter = <StaleCounter />
+const stateDemonstration = <Outer />
+const memoTutorial = <Demo />
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <StaleCounter />
+    <App />
   </React.StrictMode>
 );
 
