@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react';
 import { Quiz } from './Quiz';
 import { EnterSettings } from './EnterSettings';
 import { BattleField } from './BattleField';
+import {genRandNum} from './genRandNum';
 
 
 

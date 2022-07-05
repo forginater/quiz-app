@@ -101,7 +101,7 @@ function DisplayResult(props: {correct: boolean}) {
   )
 }
 
-function ViewState(props: QuizQuestionProps) {
+export function ViewState(props: any) {
   const viewState = JSON.stringify(props,null,4);
   return (
     <div>

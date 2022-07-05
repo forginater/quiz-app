@@ -5,7 +5,7 @@ import './App.css';
 import {useState, useEffect, useRef} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
-import {QuizQuestion} from './QuizQuestion';
+import {QuizQuestion, ViewState} from './QuizQuestion';
 import { count } from 'console';
 
 
@@ -65,7 +65,7 @@ interface Question {
 
 /*BattleField() coordinates running multiple questions with time delays and records the results
     - When (guessedCorrect || timerDone)  
-        (1) update questData (guess & outcome)
+        (1) update questionsData (guess & outcome)
         (2) currentIndex++;
     - When currentIndex is incremented =>
         (1) resets <Timer> & (2) triggers a rerender of <QuizQuestion>
@@ -77,13 +77,20 @@ export function BattleField(props: BattleFieldProps) {
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
     //Initialise State
-    //timerDone is toggled to true when $timeLimit seconds have passed
-    const [timerDone, setTimerDone] = useState(false);
+    //State specific to this question
     const [guess,setGuess] = useState<number|undefined>();
     const [answerChecked, setAnswerChecked] = useState(false);
     
-    //THIS is probably a bad way to do it
-    //Will raise this to <App> component so it can be passed through in props
+    //questionsData contains num1, num2, final guess & outcome for each Question
+    const [questionsData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
+    //timerDone is toggled to true when $timeLimit seconds have passed
+    const [timerDone, setTimerDone] = useState(false);
+    //currentIndex being asked in questionsData
+    const [currentIndex, setCurrentIndex] = useState(false);
+    
+    /*SINGULAR START*/
+    //THIS is probably a bad way to do it... 
+    //But allows testing the component while I don't have multiple questions functionality
     const num1Ref = useRef(genRandNum(lowerBound,upperBound));
     const num2Ref = useRef(genRandNum(lowerBound,upperBound));
     const num1 = num1Ref.current;
@@ -91,10 +98,8 @@ export function BattleField(props: BattleFieldProps) {
     
     //Answer for this question
     const answer = num1 * num2; 
+    /*SINGULAR END*/
 
-    function handleSetup() {
-        
-    }
     
     //setup handleGuess() function
     //handleGuess will freeze guess user input when 
@@ -112,8 +117,11 @@ export function BattleField(props: BattleFieldProps) {
 
     return (
         <div>
+            <ViewState {...props} />
+            <ViewState {...questionsData} />
             <Timer 
                 timeLimit={props.timeLimit} 
+                timerDone={timerDone}
                 setTimerDone={setTimerDone} 
             />
             <QuizQuestion 
@@ -129,8 +137,8 @@ export function BattleField(props: BattleFieldProps) {
 }
 
 
-
-function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
+interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
+function Timer(props: TimerProps) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     const renderCount = useRef(0);
     useEffect(() => {
@@ -147,20 +155,26 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
         },1000);
         return () => clearTimeout(timerId);
     },[timeRem])
-    return (
-        <>
-                <h1>ClockRender: {renderCount.current}</h1>
-                {timeRem > 0 && <>Time Remaining: {timeRem} seconds</>}
-                {!(timeRem > 0) && <>Time ran out</>}
-            
-        </>
-    )
+
+    if (timeRem > 0) {
+        return <DisplayTimeRemaining timeRem={timeRem} />
+    } else {
+        return <TimesUp />
+    }
+}
+
+function DisplayTimeRemaining(props: {timeRem: number}) {
+    return <>TimeRemaining: {props.timeRem}</>
+}
+
+function TimesUp() {
+    return <>Time ran out!!</>;
 }
 
 
 //AUXILLIARY FUNCTIONS:
 
-//getQuestData() builds the initial input for the questData useState hook with numQuestions * Question objects
+//getQuestData() builds the initial input for the questionsData useState hook with numQuestions * Question objects
 function getQuestData(numQuestions: number, lowerBound: number, upperBound: number): Question[] {
     return Array(numQuestions).fill(undefined).map((question) => {
         return {
@@ -229,9 +243,9 @@ function HandleIndex(props: any) {
 /* 
 Removed from issue12-post-1.1
 
-    //questData contains num1, num2, final guess & outcome for each Question
-    const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
-    //currentIndex: the index of the current question from questData
+    //questionsData contains num1, num2, final guess & outcome for each Question
+    const [questionsData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
+    //currentIndex: the index of the current question from questionsData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     //timerDone => the timeLimit for this question has elapsed, 
     //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
@@ -245,9 +259,9 @@ Removed from issue12-post-1.1
     });
 
     //destructure num1 & num2 from currentQuestion
-    const num1 = questData[currentIndex].num1;
-    const num2 = questData[currentIndex].num2;
-    //const thisQuestion = questData[currentIndex];  
+    const num1 = questionsData[currentIndex].num1;
+    const num2 = questionsData[currentIndex].num2;
+    //const thisQuestion = questionsData[currentIndex];  
     //const done = (guessedCorrect || timerDone);
 
 */
