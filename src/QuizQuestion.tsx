@@ -42,12 +42,15 @@ export function QuizQuestion(props: QuizQuestionProps) {
 
         {/*If (answerChecked) then: replace AnswerButton => with DisplayResult*/}
         {answerChecked && <DisplayResult correct={guess===answer}/>}  
-        <hr/>
+
+        
         <ViewState {...props} />
-        <hr/>
+        
     </div>
   );
 }
+
+
 
 
 function Question(props: {num1: number, num2: number}) {
@@ -58,7 +61,8 @@ function Question(props: {num1: number, num2: number}) {
   )
 }
 
-function Guess(props: {guess: number|undefined, handleGuess: (newGuess: number|undefined) => void}) {
+interface GuessProps {guess: number|undefined; handleGuess: (newGuess: number|undefined) => void; }
+function Guess(props: GuessProps) {
   return (
     <div>
       <input 
@@ -99,7 +103,13 @@ function DisplayResult(props: {correct: boolean}) {
 
 function ViewState(props: QuizQuestionProps) {
   const viewState = JSON.stringify(props,null,4);
-  return <h3>ViewState: {viewState}</h3>;
+  return (
+    <div>
+      <br/>
+      <hr/>
+      <h3>ViewState: {viewState}</h3>
+      <hr/>
+    </div>);
 }
 
 

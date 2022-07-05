@@ -2,9 +2,15 @@ import React from 'react';
 import './App.css';
 import {useState, useEffect} from 'react';
 
+export interface EnterSettingsProps {
+  timeLimit: number; 
+  numQuestions: number;
+  setTimeLimit: (n: number) => void; 
+  setNumQuestions: (x: number) => void;
+}
 
 //Quiz settings must be custom entered or the default settings accepted before quiz is started
-export function EnterSettings(props: {timeLimit: number, numQuestions: number, setTimeLimit: (n: number) => void, setNumQuestions: (x: number) => void}) {
+export function EnterSettings(props: EnterSettingsProps) {
   return (
       <div>
         <h3>Enter Quiz Settings: SUCK MA BALL</h3>

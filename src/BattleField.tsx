@@ -40,7 +40,12 @@ LATER:
 */
 
 
-
+export interface BattleFieldProps {
+    timeLimit: number;
+    numQuestions: number;
+    lowerBound: number;
+    upperBound: number;
+}
 
 //outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
 type outcome = undefined | 'Correct' | 'Incorrect' | 'TimeUp';
@@ -54,22 +59,8 @@ interface Question {
 }
 
 
-    //Hardcode upper and lower bounds
-    let lowerBound = 0;
-    let upperBound = 10;
-    //Generate 2 random numbers within lowerBound-upperBound
-    const num1 = genRandNum(lowerBound,upperBound);
-    const num2 = genRandNum(lowerBound,upperBound);
 
 
-
-//getQuestData() builds the initial input for the questData useState hook with numQuestions * Question objects
-function getQuestData(numQuestions: number): Question[] {
-    return Array(numQuestions).fill(undefined).map((question) => {
-        return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
-    };
-})
-}
 
 
 /*BattleField() coordinates running multiple questions with time delays and records the results
@@ -80,21 +71,37 @@ function getQuestData(numQuestions: number): Question[] {
         (1) resets <Timer> & (2) triggers a rerender of <QuizQuestion>
 
 */
-export function BattleField(props: {timeLimit: number, numQuestions: number}) { 
+export function BattleField(props: BattleFieldProps) { 
+
+    //Destructure props
+    const {timeLimit,numQuestions,lowerBound,upperBound} = props;
+
+    //Initialise State
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
-
-    //raise state
     const [guess,setGuess] = useState<number|undefined>();
     const [answerChecked, setAnswerChecked] = useState(false);
-
-    //derived state
+    
+    //THIS is probably a bad way to do it
+    //Will raise this to <App> component so it can be passed through in props
+    const num1Ref = useRef(genRandNum(lowerBound,upperBound));
+    const num2Ref = useRef(genRandNum(lowerBound,upperBound));
+    const num1 = num1Ref.current;
+    const num2 = num2Ref.current;
+    
+    //Answer for this question
     const answer = num1 * num2; 
+
+    function handleSetup() {
+        
+    }
     
     //setup handleGuess() function
-    //handleGuess will freeze when (answer===guess && answerChecked) || timeUp (later)
+    //handleGuess will freeze guess user input when 
+    //  (1) timer has completed or 
+    //  (2) user has inputted correct guess & clicked the check answer button
     function handleGuess(newGuess: number|undefined): void {
-        if (answerChecked && answer===guess) { //later add timeUp
+        if ((answerChecked && answer===guess) || timerDone) { 
             console.log("freeze guess field!!");
         } else {
             console.log("handleGuess() called:")
@@ -150,16 +157,44 @@ function Timer(props: {timeLimit: number, setTimerDone: (b: boolean) => void}) {
 }
 
 
+//AUXILLIARY FUNCTIONS:
 
-//Initialise questionsData with a variable
-const questionsInit: Question[] = Array(10).fill(undefined).map((question) => {
+//getQuestData() builds the initial input for the questData useState hook with numQuestions * Question objects
+function getQuestData(numQuestions: number, lowerBound: number, upperBound: number): Question[] {
+    return Array(numQuestions).fill(undefined).map((question) => {
+        return {
+            num1: genRandNum(lowerBound,upperBound),
+            num2: genRandNum(lowerBound,upperBound),
+            guess: undefined,
+            outcome: undefined,
+    };
+})
+}
+
+
+
+/*
+function questionsInit(lowerBound: number, upperBound: number): Question[] {Array(10).fill(undefined).map((question) => {
     return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
     };
-});
+})};
+*/
+
+
+let questionsInit: (x: number, y: number) => Question[];
+//Initialise questionsData with a variable
+questionsInit = function(lowerBound: number, upperBound: number) {
+    const arr = Array(10).fill(undefined).map((question) => {
+        return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
+    };
+})
+return arr;
+}
 
 //Testing out questionsInit data structure
-const testQuestionsInit = () => (() => {
-    const nerd = questionsInit.map((quest,i) => {
+const testQuestionsInit = (x: number, y: number) => (() => {
+
+    const nerd = questionsInit(x,y).map((quest,i) => {
         console.log(`mapping ${i}:  \n   =>`,JSON.stringify(quest,null,4));
         console.log('   => length: ',Object.keys(quest).length);
         let retArr = Object.values(quest).map((val) => {return val});

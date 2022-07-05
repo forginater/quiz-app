@@ -15,8 +15,11 @@ function App() {
   //timeLimit is hardcoded as 10 by default but can be changed by user in the <EnterSettings> component
   const [timeLimit, setTimeLimit] = useState<number>(10);
   const [numQuestions, setNumQuestions] = useState<number>(10);
-  //const [upperBound, setUpperBound] = useState<number>(1);
-  //const [lowerBound, setLowerBound] = useState<number>(10);
+  //Hardcode upper and lower bounds
+  const lowerBound = 0; //const [lowerBound, setLowerBound] = useState<number>(10);
+  const upperBound = 10; //const [upperBound, setUpperBound] = useState<number>(1);
+  
+  
 
   //startClicked toggled once user has entered (valid) settings & presses <StartButton>
   //if the settings are invalid a warning message will be displayed in <StartButton>
@@ -43,7 +46,13 @@ function App() {
             <StartButton setStartClicked={setStartClicked} validateSettings={settingsValid} />
         </>
         }
-        {startClicked && <BattleField timeLimit={timeLimit} numQuestions={numQuestions} />}
+        {startClicked && 
+          <BattleField 
+            timeLimit={timeLimit} 
+            numQuestions={numQuestions} 
+            lowerBound={lowerBound}
+            upperBound={upperBound}
+          />}
         {/*To IMPLEMENT: Once quiz has been completed: display results*/}
         
       </div>
@@ -51,9 +60,13 @@ function App() {
   )
 }
 
-export default App;
 
-function StartButton(props: {setStartClicked: (b: boolean) => void, validateSettings: boolean}) {
+interface StartButtonProps {
+  setStartClicked: (b: boolean) => void; 
+  validateSettings: boolean;
+}
+
+function StartButton(props: StartButtonProps) {
   const [startAttemptRejected, setStartAttemptRejected] = useState(false);
   
   return (
@@ -79,3 +92,4 @@ function StartButton(props: {setStartClicked: (b: boolean) => void, validateSett
 
 
 
+export default App;
