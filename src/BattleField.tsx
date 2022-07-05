@@ -15,16 +15,25 @@ TODO:
     - Start with a hardcoded 10 questions
     - Display the user's progress (eg. x / 10 questions)
     - Once the user answers a question successfully, or the timer has elapsed, ask the next one
+            => questionDone = guessedCorrectly || timeUp
     - If they got all the questions right, display the results
+            => only display results if progress == 10/10
     - Allow user to modify the number of questions asked
+
+STRATEGY:
+    - raiseState to BattleField.... Do all the logic in BattleField
+
+TASKS:
+    - raise state of [guess, setGuess] & answerChecked
+
+INTEGRATE from issue11-post-1.1
+    - questionsInit() function to create useState(initial question data)
+    - use submitWithEnter() event listener from
 ##########################################################################################
 */
 
-/*
-Things to note
-    questionDone = guessedCorrectly || timeUp
-    only display results if progress == 10/10
-*/
+
+
 
 //outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
 type outcome = undefined | 'Correct' | 'Incorrect' | 'TimeUp';
