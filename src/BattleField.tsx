@@ -103,7 +103,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
     //Temporarily pushing results to this array instead of questData
-    const [results, setResults] = useState(['']);
+    const [results, setResults] = useState(Array(props.numQuestions).fill(undefined));
     //questData contains num1, num2, final guess & outcome for each Question
     const [questData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
     //currentIndex being asked in questData
@@ -117,7 +117,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const [timerDone, setTimerDone] = useState(false);
     const [timeRem, setTimeRem] = useState(props.timeLimit);
   
-
+    
     
 
     //BUSINESS LOGIC:
@@ -162,11 +162,18 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
-    function updateResults() {
-        
+    function updateResults(index: number) {
+        //Push to prexisting array
+        //setResults([...results,'index #' + index + ' result is: ' + getOutcome(index)])
+        const cloneResults = results.slice();
+        //mutate and return result @index
+        cloneResults[index] = getOutcome(index); 
+        setResults([...cloneResults]);
     }
 
-    function incrementIndex() {}
+    function incrementIndex() {
+        setCurrentIndex(currentIndex + 1);
+    }
 
     function resetTimer() {}
 
@@ -175,18 +182,18 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function handleUpdate() { //outcome: outcome, finalGuess: number
         //Need to make sure it isn't the last question
         console.log("handleUpdate() called");
-        
+        const indexNow = currentIndex;
         if (isLastQuestion(currentIndex)) { //questions remain: updateResults, reset Timer & render nextQuestion
             console.log("REMAIN");
-            updateResults();
-            const indexNow = currentIndex;
+            updateResults(indexNow);
+            
             incrementIndex();
             resetTimer();
             renderNextQuestion();
         }
         else { //This is the last question, just updateResults
             console.log("LAST");
-            updateResults();
+            updateResults(indexNow);
         }
         
     }
