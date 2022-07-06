@@ -7,6 +7,7 @@ import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
 import {QuizQuestion, QuizQuestionProps, ViewState} from './QuizQuestion';
 import { count } from 'console';
+import { BasicCounter } from './TimerComponents';
 
 
 /* 
@@ -254,39 +255,6 @@ function ManualUpdateButton(props: {onClick: any}) {
 
 
 
-interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
-function Timer(props: TimerProps) {
-    const [timeRem, setTimeRem] = useState(props.timeLimit);
-    const renderCount = useRef(0);
-    useEffect(() => {
-        renderCount.current = renderCount.current + 1;
-    });
-    useEffect(() => {
-        
-        const timerId = setTimeout(() => {
-            if (timeRem > 0) {
-                setTimeRem((timeRem) => timeRem - 1);
-            } else {
-                props.setTimerDone((true));
-            }
-        },1000);
-        return () => clearTimeout(timerId);
-    },[timeRem])
-
-    if (timeRem > 0) {
-        return <DisplayTimeRemaining timeRem={timeRem} />
-    } else {
-        return <TimesUp />
-    }
-}
-
-function DisplayTimeRemaining(props: {timeRem: number}) {
-    return <>TimeRemaining: {props.timeRem}</>
-}
-
-function TimesUp() {
-    return <>Time ran out!!</>;
-}
 
 
 //AUXILLIARY FUNCTIONS:
@@ -386,32 +354,6 @@ Removed from issue12-post-1.1
 
 */
 
-//interface BasicCounterPropsOld {timeRem: number, setTimeRem: (n: number) => void; timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void; handleTimerDone: any}
-interface BasicCounterProps {timeRem: number, setTimeRem: (n: number) => void; handleTimerDone: any}
-function BasicCounter(props: BasicCounterProps) {
-    //destucture props
-    const {timeRem, setTimeRem, handleTimerDone} = props;
-    //define timeRem in local state
-    
-
-    useEffect(() => {
-        const timerId = setTimeout(() => {
-            if (timeRem > 0) {
-                setTimeRem(timeRem - 1);
-            } else {
-                handleTimerDone();
-                
-
-            }
-        },1000);
-        return () => clearTimeout(timerId);
-    },[timeRem])
-    if (timeRem > 0) {
-        return <DisplayTimeRemaining timeRem={timeRem} />
-    } else {
-        return <TimesUp />
-    }
-}
 
 
 
