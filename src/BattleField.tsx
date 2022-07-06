@@ -49,6 +49,9 @@ export interface BattleFieldProps {
 
 //outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
 type outcome = undefined | 'Correct' | 'Incorrect' | 'TimeUp';
+type outcomeSimple = 'Hooray' | 'HoorayDenied'; 
+//Hooray recorded when !timerDone && (answer===guess && answerChecked)
+//
 
 //for each individual quiz question, 'Question' interface used to store the numbers used to form the question , the latest guess & the outcome 
 interface Question {
@@ -65,7 +68,7 @@ interface Question {
 
 /*BattleField() coordinates running multiple questions with time delays and records the results
     - When (guessedCorrect || timerDone)  
-        (1) update questionsData (guess & outcome)
+        (1) update questData (guess & outcome)
         (2) currentIndex++;
     - When currentIndex is incremented =>
         (1) resets <Timer> & (2) triggers a rerender of <QuizQuestion>
@@ -76,39 +79,113 @@ export function BattleField(props: BattleFieldProps) {
     //Destructure props
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
-    //Initialise State
-    //State specific to this question
-    const [guess,setGuess] = useState<number|undefined>();
-    const [answerChecked, setAnswerChecked] = useState(false);
+
     
-    //questionsData contains num1, num2, final guess & outcome for each Question
-    const [questionsData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
-    //timerDone is toggled to true when $timeLimit seconds have passed
-    const [timerDone, setTimerDone] = useState(false);
-    //currentIndex being asked in questionsData
+    //questData contains num1, num2, final guess & outcome for each Question
+    const [questData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
+    //currentIndex being asked in questData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     
-    /*SINGULAR START*/
-    //THIS is probably a bad way to do it... 
-    //But allows testing the component while I don't have multiple questions functionality
-    const num1Ref = useRef(genRandNum(lowerBound,upperBound));
-    const num2Ref = useRef(genRandNum(lowerBound,upperBound));
-    const num1_ = num1Ref.current;
-    const num2_ = num2Ref.current;
-    //Answer for this question
-    //const answer = num1_ * num2_; 
-    /*SINGULAR END*/
+    //Raised from <Battle>
+    //State specific to currentQuestion
+    const [guess,setGuess] = useState<number|undefined>();
+    const [answerChecked, setAnswerChecked] = useState(false);
+
 
     /*MULTI START*/
-    const num1 = questionsData[currentIndex].num1;
-    const num2 = questionsData[currentIndex].num2;
-    const answer = num1 * num2; 
-    //destructure current questionsData
-    //const {num1, num2, guess, outcome} = questionsData[currentIndex];
-
-
-
+    const num1 = questData[currentIndex].num1;
+    const num2 = questData[currentIndex].num2;
     
+    //destructure current questData
+    //const {num1, num2, guess, outcome} = questData[currentIndex];
+
+    //When Battle is done: (timerDone || (guess===answer && answerChecked)) then call handleNextQuestion() in <Battle>
+    //      (1) update questData (guess & outcome)
+    //      (2) currentIndex++;
+    //  - When currentIndex is incremented =>
+    //      (1) resets <Timer> & (2) triggers a rerender of <QuizQuestion>
+    function handleUpdate(outcome: outcome, finalGuess: number) {
+        //Clone the current question
+        const cloneData = questData.slice();
+        const cloneQuestion = questData.slice()[currentIndex];
+        //update the final guess & the outcome from Battle
+        const updatedQuestion = {
+            ...cloneQuestion,
+            guess: 10,
+            outcome: 'Correct',
+        }
+        //const updatedQuestData = []
+        console.log("ClonedQuest: ", cloneQuestion);
+        console.log("updatedQuest: ", updatedQuestion);
+        //setQuestData(questData)
+        console.log("before update index: ",currentIndex);
+        setCurrentIndex(index => index+1);
+        console.log("post index update: ",currentIndex);
+        //setQuestData(questData => )
+    }
+
+    console.log()
+
+    function handleUpdateManual() {
+
+        if (currentIndex < questData.length) {
+            console.log("manually handle update: ",currentIndex);
+            setCurrentIndex(currentIndex => currentIndex+1);
+        }
+        
+        
+    }
+    
+    return (
+        <>
+            <ViewState  index={currentIndex}/>
+            <ViewState {...props} />
+            <ViewState {...questData} />
+            <Battle 
+                timeLimit={timeLimit} 
+                num1={num1} 
+                num2={num2} 
+                guess={guess}
+                setGuess={setGuess}
+                answerChecked={answerChecked}
+                setAnswerChecked={setAnswerChecked}
+                handleUpdateAuto={() => {}} 
+                handleUpdate={handleUpdateManual}
+            /> 
+        </>
+    )
+}
+
+interface BattleProps {
+    timeLimit: number;
+    num1: number;
+    num2: number;
+    guess: number|undefined;
+    setGuess: (n: number|undefined) => void;
+    answerChecked: boolean;
+    setAnswerChecked: (b: boolean) => void;
+    handleUpdate: any;
+    handleUpdateAuto: any;
+}
+
+
+//Quarantine data from this specific question
+//Coordinator needs the question/answer (num1 & num2) & timeLimit... 
+//if timeUp || correctGuess => alert parent, which will increment currentIndex
+function Battle(props: BattleProps) {
+    //destructure
+    const {guess,setGuess,answerChecked,setAnswerChecked} = props;
+    const answer = props.num1 * props.num2; 
+    
+
+    //timerDone is toggled to true when $timeLimit seconds have passed
+    const [timerDone, setTimerDone] = useState(false);
+    
+    //Does this increase changes of desync issues?
+    const battleTerminated = (timerDone || (guess===answer && answerChecked));
+
+
+
     //setup handleGuess() function
     //handleGuess will freeze guess user input when 
     //  (1) timer has completed or 
@@ -121,20 +198,27 @@ export function BattleField(props: BattleFieldProps) {
             setGuess(newGuess);
         }
     };
-    
-
     return (
+        //{battleTerminated && props.handleUpdate()}
         <div>
-            <ViewState {...props} />
-            <ViewState {...questionsData} />
+            <label>
+                nextQuestion:
+                <input 
+                    type="button"
+                    value="Update Index"
+                    onClick={(e) => {props.handleUpdate()}}
+                />
+            </label>
+            <br/>
+            
             <Timer 
                 timeLimit={props.timeLimit} 
                 timerDone={timerDone}
                 setTimerDone={setTimerDone} 
             />
             <QuizQuestion 
-                num1={num1} 
-                num2={num2}
+                num1={props.num1} 
+                num2={props.num2}
                 guess={guess}
                 answerChecked={answerChecked}
                 setAnswerChecked={setAnswerChecked}
@@ -142,13 +226,8 @@ export function BattleField(props: BattleFieldProps) {
             />
         </div>
     )
-}
 
-function Coordinator(props: any) {
-    return (
-    <>
-    </>
-    )
+
 }
 
 interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
@@ -188,7 +267,7 @@ function TimesUp() {
 
 //AUXILLIARY FUNCTIONS:
 
-//getQuestData() builds the initial input for the questionsData useState hook with numQuestions * Question objects
+//getQuestData() builds the initial input for the questData useState hook with numQuestions * Question objects
 function getQuestData(numQuestions: number, lowerBound: number, upperBound: number): Question[] {
     return Array(numQuestions).fill(undefined).map((question) => {
         return {
@@ -205,7 +284,7 @@ function getQuestData(numQuestions: number, lowerBound: number, upperBound: numb
 
 
 let questionsInit: (x: number, y: number) => Question[];
-//Initialise questionsData with a variable
+//Initialise questData with a variable
 questionsInit = function(lowerBound: number, upperBound: number) {
     const arr = Array(10).fill(undefined).map((question) => {
         return {num1: genRandNum(lowerBound,upperBound),num2: genRandNum(lowerBound,upperBound),guess: undefined,outcome: undefined,
@@ -242,7 +321,16 @@ function HandleIndex(props: any) {
 */
 
 
-
+    /*SINGULAR START
+    //THIS is probably a bad way to do it... 
+    //But allows testing the component while I don't have multiple questions functionality
+    const num1Ref = useRef(genRandNum(lowerBound,upperBound));
+    const num2Ref = useRef(genRandNum(lowerBound,upperBound));
+    const num1_ = num1Ref.current;
+    const num2_ = num2Ref.current;
+    //Answer for this question
+    const answer_ = num1_ * num2_; 
+    SINGULAR END*/
 
 
 
@@ -251,9 +339,9 @@ function HandleIndex(props: any) {
 /* 
 Removed from issue12-post-1.1
 
-    //questionsData contains num1, num2, final guess & outcome for each Question
-    const [questionsData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
-    //currentIndex: the index of the current question from questionsData
+    //questData contains num1, num2, final guess & outcome for each Question
+    const [questData, setQuestData] = useState<Question[]>(getQuestData(props.numQuestions));
+    //currentIndex: the index of the current question from questData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     //timerDone => the timeLimit for this question has elapsed, 
     //guessedCorrect reflects whether the user has inputted the correct answer for the current question in QuizQuestion
@@ -267,9 +355,9 @@ Removed from issue12-post-1.1
     });
 
     //destructure num1 & num2 from currentQuestion
-    const num1 = questionsData[currentIndex].num1;
-    const num2 = questionsData[currentIndex].num2;
-    //const thisQuestion = questionsData[currentIndex];  
+    const num1 = questData[currentIndex].num1;
+    const num2 = questData[currentIndex].num2;
+    //const thisQuestion = questData[currentIndex];  
     //const done = (guessedCorrect || timerDone);
 
 */
