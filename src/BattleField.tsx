@@ -90,7 +90,7 @@ export function BattleField(props: BattleFieldProps) {
     const [answerChecked, setAnswerChecked] = useState(false);
     //timerDone is toggled to true when $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
-
+    const [timeRem, setTimeRem] = useState(props.timeLimit);
   
 
      //Does this increase changes of desync issues?
@@ -154,6 +154,19 @@ export function BattleField(props: BattleFieldProps) {
         setTimerDone(false)
     }
 
+    //when questionDone() => call handleUpdateManual()
+    //Return true if this question is done & needs time to update outcomes & index
+    function questionDone() {
+        return (answerChecked && getAnswer(currentIndex)===guess) || timerDone;
+    }
+
+    function handleTimerDone() {
+        console.log("handleTimerDone() called:");
+        setTimerDone(true);
+        handleUpdateManual();
+        setTimeRem(timeLimit);
+    }
+
 
     function handleGuess(newGuess: number|undefined): void {
         if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
@@ -174,6 +187,8 @@ export function BattleField(props: BattleFieldProps) {
             //Get old values
             timeLimit: timeLimit,
             timerDone: timerDone,
+            timeRem: timeRem,
+            setTimeRem: setTimeRem,
             guess: guess,
             answerChecked: answerChecked,
             setTimerDone: setTimerDone,
@@ -189,7 +204,17 @@ export function BattleField(props: BattleFieldProps) {
 
     
     return (
-        <>
+        <>  
+            <br/>
+            <BasicCounter 
+                timeRem={timeRem}
+                setTimeRem={setTimeRem}
+                timeLimit={props.timeLimit} 
+                timerDone={timerDone}
+                setTimerDone={setTimerDone} 
+                handleTimerDone={handleTimerDone}
+            />
+            <br/><br/><br/>
 
             <ViewState  results={results}/>
             <ViewState  index={currentIndex}/>
@@ -211,6 +236,8 @@ interface BattleProps {
     setGuess: (n: number|undefined) => void;
     timerDone: boolean;
     setTimerDone: (b: boolean) => void;
+    timeRem:  number;
+    setTimeRem: (n: number) => void;
     answerChecked: boolean;
     setAnswerChecked: (b: boolean) => void;
     handleUpdate: any;
@@ -225,7 +252,7 @@ interface BattleProps {
 //if timeUp || correctGuess => alert parent, which will increment currentIndex
 function Battle(props: BattleProps) {
     //destructure
-    const {guess,setGuess,answerChecked,setAnswerChecked,timerDone,setTimerDone} = props;
+    const {guess,setGuess,answerChecked,setAnswerChecked,timerDone,setTimerDone,timeRem,setTimeRem} = props;
     //calculate answer
     const answer = props.num1 * props.num2; 
 
@@ -246,12 +273,6 @@ function Battle(props: BattleProps) {
                 />
             </label>
             <br/>
-            
-            <Timer 
-                timeLimit={props.timeLimit} 
-                timerDone={timerDone}
-                setTimerDone={setTimerDone} 
-            />
             <QuizQuestion 
                 num1={props.num1} 
                 num2={props.num2}
@@ -265,6 +286,7 @@ function Battle(props: BattleProps) {
 
 
 }
+
 
 interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
 function Timer(props: TimerProps) {
@@ -397,3 +419,33 @@ Removed from issue12-post-1.1
     //const done = (guessedCorrect || timerDone);
 
 */
+
+
+interface BasicCounterProps {timeRem: number, setTimeRem: (n: number) => void; timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void; handleTimerDone: any}
+function BasicCounter(props: BasicCounterProps) {
+    //destucture props
+    const {timeRem, setTimeRem, timeLimit, timerDone, setTimerDone, handleTimerDone} = props;
+    //define timeRem in local state
+    
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            if (timeRem > 0) {
+                setTimeRem(timeRem - 1);
+            } else {
+                handleTimerDone();
+                
+
+            }
+        },1000);
+        return () => clearTimeout(timerId);
+    },[timeRem])
+    if (timeRem > 0) {
+        return <DisplayTimeRemaining timeRem={timeRem} />
+    } else {
+        return <TimesUp />
+    }
+}
+
+
+
