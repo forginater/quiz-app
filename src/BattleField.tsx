@@ -95,6 +95,8 @@ interface Question {
 
     
 */
+
+
 export function BattleField(this: any, props: BattleFieldProps) { 
 
     //Destructure props
@@ -119,10 +121,11 @@ export function BattleField(this: any, props: BattleFieldProps) {
     
 
     //BUSINESS LOGIC:
-    //ASSUMPTIONS: GET FUNCTIONS need to be called before question is updated
+    //ASSUMPTIONS: GET FUNCTIONS need to be called before QuizQuestions are rendered with next question
     //They base their answer on values that are wiped each new question 
     //so if they are called after updating UI to next question, they will return stale data
     
+    ////////////////////////////////////////////////////////
     //GET FUNCTIONS
     //getOutcome returns the outcome based on this index
     function getOutcome(index: number) {
@@ -133,29 +136,55 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
-    //get the aanswer the question corresponding to index in argument
+    //get the answer the question corresponding to index in argument
     function getAnswer(index: number) {
         return questData[index].num1 * questData[index].num2;
     }
 
     //when questionDone() => call handleUpdateManual()
     //Return true if this question is done & needs time to update outcomes & index
-    function questionDone() {
+    function isQuestionDone() {
         return (answerChecked && getAnswer(currentIndex)===guess) || timerDone;
     }
 
-        
+    function isLastQuestion(index: number) {
+        //index of last question occurs @ numQuesstions -1 => 
+        if (true) {console.log("isLastQuestion() thisIndex:",index, " currentIndex: ", currentIndex);}
+        //
+        return (index === (numQuestions - 2)) ? false : true;
+    }
 
-    
+    ////////////////////////////////////////////////////////////
+    //UPDATER FUNCTIONS
+    function updateIfQuestionDone() {
+        if (isQuestionDone()) {
+            handleUpdate();
+        }
+    }
 
-
-    
-    //HANDLER FUNCTIONS
-    function handleUpdate(outcome: outcome, finalGuess: number) { 
+    function updateResults() {
         
     }
 
+    function handleUpdate() { //outcome: outcome, finalGuess: number
+        //Need to make sure it isn't the last question
+        console.log("handleUpdate() called");
+        if (isLastQuestion(currentIndex)) { //questions remain: updateResults, reset Timer & render nextQuestion
+            console.log("REMAIN");
+        }
+        else { //This is the last question, just updateResults
+            console.log("LAST");
+        }
+        updateResults();
+    }
+
     function handleUpdateManual() {
+        if (true) {
+            handleUpdate();
+            const newIndex = currentIndex + 1;
+            setCurrentIndex(newIndex);
+            return;
+        }
         if (currentIndex < questData.length) {
             const indexNow = currentIndex;
             console.log("manually handle update: ",indexNow);
@@ -168,6 +197,20 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
+    //Get the current BattleProps based on the current index
+    function getQuizQuestionProps(index: number) {
+        return {
+            //Get questions from current question
+            num1: questData[index].num1,
+            num2: questData[index].num2,
+            //Get old values
+            guess: guess,
+            answerChecked: answerChecked,
+            setAnswerChecked: setAnswerChecked,
+            handleGuess: handleGuess,
+        }
+    }
+
     //nextQuizQuestionPropsInit()
     //PURPOSE: Reset state => reinitialise <QuizQuestion> for next question
     function nextQuizQuestionPropsInit(index: number) {
@@ -175,6 +218,12 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setAnswerChecked(false);
         setTimerDone(false)
     }
+
+    ////////////////////////////////////////////////////////////
+    //HANDLER FUNCTIONS
+    //(for child stateless components)
+    //NOTE: atm, successfull outcome = (answerChecked && getAnswer(currentIndex)===guess) || timerDone
+    //Therefore, handleTimerDone() will call updateApp() by default, whereas handleGuess() will need to check questionDone()
 
     //handleTimerDone()
     //PURPOSE: setTimerDone(true), call handleUpdateManual then reset Timer
@@ -190,33 +239,26 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
+        console.log("handleGuess() called:")
+        setGuess(newGuess);
+        updateIfQuestionDone(); //update if answerChecked & guess===answer
+    };
+
+    function handleGuessOld(newGuess: number|undefined): void {
+        console.log("handleGuess() called:")
         if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
             console.log("freeze guess field!!");
         } else {
-            console.log("handleGuess() called:")
             setGuess(newGuess);
+
         }
     };
 
 
-    //Get the current BattleProps based on the current index
-function getQuizQuestionProps(index: number) {
-        const nextBattleProps: QuizQuestionProps = {
-            //Get questions from current question
-            num1: questData[index].num1,
-            num2: questData[index].num2,
-            //Get old values
-            guess: guess,
-            answerChecked: answerChecked,
-            setAnswerChecked: setAnswerChecked,
-            handleGuess: handleGuess,
-        }
-        return nextBattleProps;
-    }
 
 
-
-    
+    ////////////////////////////////////////////////////////////
+    //BattleField return JSX component
     return (
         <>
             <>  

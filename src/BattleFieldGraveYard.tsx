@@ -76,9 +76,13 @@ interface Question {
    (1) define function updateIfQuestionDone() {
         if (questionDone())  //When (guessedCorrect || timerDone)  
         then do the following:
+    updateResults()    
         (2) record results 
+    updateState()
         (3) currentIndex++;
+    updateTimerState
         (4) reset <Timer> 
+    updateQuizQuestionState
         (5) "rerender" <QuizQuestion> by:
             (a) provide props to next question
             (b) initialise raised state variables
