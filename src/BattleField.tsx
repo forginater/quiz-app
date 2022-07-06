@@ -58,6 +58,7 @@ interface Question {
     num1: number;
     num2: number;
     guess: number|undefined;
+    
     outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
@@ -124,37 +125,70 @@ export function BattleField(props: BattleFieldProps) {
         //setQuestData(questData => )
     }
 
-    console.log()
+    
 
     function handleUpdateManual() {
 
         if (currentIndex < questData.length) {
             console.log("manually handle update: ",currentIndex);
-            setCurrentIndex(currentIndex => currentIndex+1);
+            const newIndex = currentIndex + 1;
+            setCurrentIndex(newIndex);
+            //need to update outcomes/results
+            //update props to <Battle> to render next question
+            updateBattle(newIndex);
         }
-        
-        
     }
+
+    //Call this in order to reinitialise setGuess & setAnswer Checked
+    function updateBattle(index: number) {
+        setGuess(undefined);
+        setAnswerChecked(false);
+    }
+
+
+    //Get the current BattleProps based on the current index
+    function getBattleProps(index: number) {
+        const nextBattleProps: BattleProps = {
+            //Get questions from current question
+            num1: questData[index].num1,
+            num2: questData[index].num2,
+            //Get old values
+            timeLimit: timeLimit,
+            guess: guess,
+            answerChecked: answerChecked,
+            setGuess: setGuess,
+            setAnswerChecked: setAnswerChecked,
+            handleUpdateAuto: () => {},
+            handleUpdate: handleUpdateManual,
+        }
+        return nextBattleProps;
+    }
+
     
     return (
         <>
             <ViewState  index={currentIndex}/>
             <ViewState {...props} />
             <ViewState {...questData} />
-            <Battle 
-                timeLimit={timeLimit} 
-                num1={num1} 
-                num2={num2} 
-                guess={guess}
-                setGuess={setGuess}
-                answerChecked={answerChecked}
-                setAnswerChecked={setAnswerChecked}
-                handleUpdateAuto={() => {}} 
-                handleUpdate={handleUpdateManual}
-            /> 
+            
+            <Battle {...getBattleProps(currentIndex)} />
+
         </>
     )
 }
+/*
+<Battle 
+timeLimit={timeLimit} 
+num1={num1} 
+num2={num2} 
+guess={guess}
+answerChecked={answerChecked}
+setGuess={setGuess}
+setAnswerChecked={setAnswerChecked}
+handleUpdateAuto={() => {}} 
+handleUpdate={handleUpdateManual}
+/> 
+*/
 
 interface BattleProps {
     timeLimit: number;
@@ -169,12 +203,15 @@ interface BattleProps {
 }
 
 
+
+
 //Quarantine data from this specific question
 //Coordinator needs the question/answer (num1 & num2) & timeLimit... 
 //if timeUp || correctGuess => alert parent, which will increment currentIndex
 function Battle(props: BattleProps) {
     //destructure
     const {guess,setGuess,answerChecked,setAnswerChecked} = props;
+    //calculate answer
     const answer = props.num1 * props.num2; 
     
 
