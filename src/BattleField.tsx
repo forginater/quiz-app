@@ -143,8 +143,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //when questionDone() => call handleUpdateManual()
     //Return true if this question is done & needs time to update outcomes & index
-    function isQuestionDone() {
-        return (answerChecked && getAnswer(currentIndex)===guess) || timerDone;
+    function isQuestionDone(newGuess: number|undefined) {
+        //console.log("isQuestionDone() called: ", "\n    => isQuestionDone: ", (answerChecked && getAnswer(currentIndex)===guess) || timerDone));
+        return (answerChecked && getAnswer(currentIndex)===newGuess) || timerDone;
     }
 
     function isLastQuestion(index: number) {
@@ -156,8 +157,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     ////////////////////////////////////////////////////////////
     //UPDATER FUNCTIONS
-    function updateIfQuestionDone() {
-        if (isQuestionDone()) {
+    function updateIfQuestionDone(newGuess: number|undefined) {
+        console.log("updateIfQuestionCalled()");
+        if (isQuestionDone(newGuess)) {
+            console.log("updateIfQuestionCalled() true => callUpdate()");
             handleUpdate();
         }
     }
@@ -175,18 +178,29 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setCurrentIndex(currentIndex + 1);
     }
 
-    function resetTimer() {}
+    //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
+    //no need to setTimerDone(true) as the next question would setTimerDone(false) straight afterwards
+    function resetTimer() {
+        setTimeRem(timeLimit);
+    }
 
-    function renderNextQuestion() {}
+    //NOTE: don't need to update num1,num2 as they're automatically updated by getQuizQuestionsProps() after incrementIndex() is called
+    function renderNextQuestion() {
+        setGuess(undefined);
+        setAnswerChecked(false);
+        setTimerDone(false)
+    }
 
+    //This is the main function responsible for updating the BattleField state
+    //Called by handleTimerDone() & if(isQuestionDone) also by handleGuess() 
     function handleUpdate() { //outcome: outcome, finalGuess: number
         //Need to make sure it isn't the last question
         console.log("handleUpdate() called");
         const indexNow = currentIndex;
-        if (isLastQuestion(currentIndex)) { //questions remain: updateResults, reset Timer & render nextQuestion
+        if (isLastQuestion(currentIndex)) { 
+            //questions remain: updateResults, reset Timer & render nextQuestion
             console.log("REMAIN");
             updateResults(indexNow);
-            
             incrementIndex();
             resetTimer();
             renderNextQuestion();
@@ -250,29 +264,26 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
         setTimerDone(true);
-        handleUpdateManual();
+        handleUpdate();
         setTimeRem(timeLimit);
-
     }
-
+    
 
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
         console.log("handleGuess() called:")
         setGuess(newGuess);
-        updateIfQuestionDone(); //update if answerChecked & guess===answer
+        updateIfQuestionDone(newGuess); //update if answerChecked & guess===answer
     };
 
-    function handleGuessOld(newGuess: number|undefined): void {
-        console.log("handleGuess() called:")
-        if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
-            console.log("freeze guess field!!");
-        } else {
-            setGuess(newGuess);
+    function handleCheckAnswerButton() {
+        setAnswerChecked(true);
+        //Also need to check updateIfQuestionDone(), in case user entered correct guess before clicking button
+        updateIfQuestionDone(guess);
+    }
 
-        }
-    };
+
 
 
 
@@ -371,7 +382,17 @@ function getQuestData(numQuestions: number, lowerBound: number, upperBound: numb
     */
 
 
+/* 
+    function handleGuessOld(newGuess: number|undefined): void {
+        console.log("handleGuess() called:")
+        if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
+            console.log("freeze guess field!!");
+        } else {
+            setGuess(newGuess);
 
+        }
+    };
+*/
 
 
 
