@@ -10,10 +10,11 @@ import {useState} from 'react';
 export interface QuizQuestionProps {
   num1: number;
   num2: number;
-  answerChecked: boolean;
   guess: number|undefined;
+  answerChecked: boolean;
   setAnswerChecked: (b: boolean) => void;
   handleGuess: (n: number|undefined) => void;
+  
 }
 
 export function QuizQuestion(props: QuizQuestionProps) {

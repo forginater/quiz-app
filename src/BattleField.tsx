@@ -5,7 +5,7 @@ import './App.css';
 import {useState, useEffect, useRef} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
-import {QuizQuestion, ViewState} from './QuizQuestion';
+import {QuizQuestion, QuizQuestionProps, ViewState} from './QuizQuestion';
 import { count } from 'console';
 
 
@@ -185,21 +185,23 @@ export function BattleField(props: BattleFieldProps) {
             num1: questData[index].num1,
             num2: questData[index].num2,
             //Get old values
-            timeLimit: timeLimit,
-            timerDone: timerDone,
-            timeRem: timeRem,
-            setTimeRem: setTimeRem,
             guess: guess,
             answerChecked: answerChecked,
-            setTimerDone: setTimerDone,
-            setGuess: setGuess,
             setAnswerChecked: setAnswerChecked,
             handleUpdateAuto: () => {},
             handleUpdate: handleUpdateManual,
             handleGuess: handleGuess,
+            /*Removed*/
+            //timerDone: timerDone,
+            //timeRem: timeRem,
+            //setTimeRem: setTimeRem,            
+            //setTimerDone: setTimerDone,
+            //setGuess: setGuess,
+            //timeLimit: timeLimit,
         }
         return nextBattleProps;
     }
+
 
 
     
@@ -209,9 +211,6 @@ export function BattleField(props: BattleFieldProps) {
             <BasicCounter 
                 timeRem={timeRem}
                 setTimeRem={setTimeRem}
-                timeLimit={props.timeLimit} 
-                timerDone={timerDone}
-                setTimerDone={setTimerDone} 
                 handleTimerDone={handleTimerDone}
             />
             <br/><br/><br/>
@@ -227,23 +226,11 @@ export function BattleField(props: BattleFieldProps) {
     )
 }
 
-
-interface BattleProps {
-    timeLimit: number;
-    num1: number;
-    num2: number;
-    guess: number|undefined;
-    setGuess: (n: number|undefined) => void;
-    timerDone: boolean;
-    setTimerDone: (b: boolean) => void;
-    timeRem:  number;
-    setTimeRem: (n: number) => void;
-    answerChecked: boolean;
-    setAnswerChecked: (b: boolean) => void;
+interface BattleProps extends QuizQuestionProps {
     handleUpdate: any;
     handleUpdateAuto: any;
-    handleGuess: any;
 }
+
 
 
 
@@ -252,7 +239,7 @@ interface BattleProps {
 //if timeUp || correctGuess => alert parent, which will increment currentIndex
 function Battle(props: BattleProps) {
     //destructure
-    const {guess,setGuess,answerChecked,setAnswerChecked,timerDone,setTimerDone,timeRem,setTimeRem} = props;
+    const {guess,answerChecked,setAnswerChecked} = props; //setGuess, timerDone,setTimerDone,timeRem,setTimeRem
     //calculate answer
     const answer = props.num1 * props.num2; 
 
@@ -420,11 +407,11 @@ Removed from issue12-post-1.1
 
 */
 
-
-interface BasicCounterProps {timeRem: number, setTimeRem: (n: number) => void; timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void; handleTimerDone: any}
+//interface BasicCounterPropsOld {timeRem: number, setTimeRem: (n: number) => void; timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void; handleTimerDone: any}
+interface BasicCounterProps {timeRem: number, setTimeRem: (n: number) => void; handleTimerDone: any}
 function BasicCounter(props: BasicCounterProps) {
     //destucture props
-    const {timeRem, setTimeRem, timeLimit, timerDone, setTimerDone, handleTimerDone} = props;
+    const {timeRem, setTimeRem, handleTimerDone} = props;
     //define timeRem in local state
     
 
