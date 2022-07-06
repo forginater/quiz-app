@@ -168,6 +168,9 @@ export function BattleField(props: BattleFieldProps) {
     }
 
 
+    //handleGuess() passed to <Guess>, it prevents <Guess> from updating guess state when:
+    //  (1) timer has completed or 
+    //  (2) user has inputted correct guess & clicked the check answer button
     function handleGuess(newGuess: number|undefined): void {
         if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
             console.log("freeze guess field!!");
@@ -179,8 +182,8 @@ export function BattleField(props: BattleFieldProps) {
 
 
     //Get the current BattleProps based on the current index
-    function getBattleProps(index: number) {
-        const nextBattleProps: BattleProps = {
+function getQuizQuestionProps(index: number) {
+        const nextBattleProps: QuizQuestionProps = {
             //Get questions from current question
             num1: questData[index].num1,
             num2: questData[index].num2,
@@ -188,9 +191,10 @@ export function BattleField(props: BattleFieldProps) {
             guess: guess,
             answerChecked: answerChecked,
             setAnswerChecked: setAnswerChecked,
-            handleUpdateAuto: () => {},
-            handleUpdate: handleUpdateManual,
             handleGuess: handleGuess,
+            //Beyond QuizQuestionProps
+            //handleUpdateAuto: () => {},
+            //handleUpdate: handleUpdateManual,
             /*Removed*/
             //timerDone: timerDone,
             //timeRem: timeRem,
@@ -206,73 +210,48 @@ export function BattleField(props: BattleFieldProps) {
 
     
     return (
-        <>  
-            <br/>
-            <BasicCounter 
-                timeRem={timeRem}
-                setTimeRem={setTimeRem}
-                handleTimerDone={handleTimerDone}
-            />
-            <br/><br/><br/>
+        <>
+            <>  
+                <br/>
+                <BasicCounter 
+                    timeRem={timeRem}
+                    setTimeRem={setTimeRem}
+                    handleTimerDone={handleTimerDone}
+                />
+                <br/><br/><br/>
 
-            <ViewState  results={results}/>
-            <ViewState  index={currentIndex}/>
-            <ViewState {...props} />
-            <ViewState {...questData} />
-            
-            <Battle {...getBattleProps(currentIndex)} />
+                <ViewState  results={results}/>
+                <ViewState  index={currentIndex}/>
+                <ViewState {...props} />
+                <ViewState {...questData} />
+                
+                
 
+            </>
+                <div>
+                    <ManualUpdateButton onClick={handleUpdateManual}/>
+                    <br/>
+                    <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
+                </div>
         </>
     )
 }
 
-interface BattleProps extends QuizQuestionProps {
-    handleUpdate: any;
-    handleUpdateAuto: any;
-}
 
 
-
-
-//Quarantine data from this specific question
-//Coordinator needs the question/answer (num1 & num2) & timeLimit... 
-//if timeUp || correctGuess => alert parent, which will increment currentIndex
-function Battle(props: BattleProps) {
-    //destructure
-    const {guess,answerChecked,setAnswerChecked} = props; //setGuess, timerDone,setTimerDone,timeRem,setTimeRem
-    //calculate answer
-    const answer = props.num1 * props.num2; 
-
-    //setup handleGuess() function
-    //handleGuess will freeze guess user input when 
-    //  (1) timer has completed or 
-    //  (2) user has inputted correct guess & clicked the check answer button
-
+function ManualUpdateButton(props: {onClick: any}) { 
     return (
-        //{battleTerminated && props.handleUpdate()}
-        <div>
-            <label>
-                nextQuestion:
-                <input 
-                    type="button"
-                    value="Update Index"
-                    onClick={(e) => {props.handleUpdate()}}
-                />
-            </label>
-            <br/>
-            <QuizQuestion 
-                num1={props.num1} 
-                num2={props.num2}
-                guess={guess}
-                answerChecked={answerChecked}
-                setAnswerChecked={setAnswerChecked}
-                handleGuess={props.handleGuess}
+        <label>
+            nextQuestion:
+            <input 
+                type="button"
+                value="Update Index"
+                onClick={(e) => {props.onClick()}}
             />
-        </div>
+        </label>
     )
-
-
 }
+
 
 
 interface TimerProps {timeLimit: number; timerDone: boolean; setTimerDone: (b: boolean) => void;}
