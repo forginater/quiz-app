@@ -49,7 +49,7 @@ export interface BattleFieldProps {
 
 //outcome of attempting a question: undefined <=> hasn't been answered yet, 'Correct' => guessed right answer before timeUp
 type outcome = undefined | 'Correct' | 'Incorrect' | 'TimeUp';
-type outcomeSimple = 'Hooray' | 'HoorayDenied'; 
+type OutcomeSimple = 'Correct' | 'Incorrect'; 
 //Hooray recorded when !timerDone && (answer===guess && answerChecked)
 //
 
@@ -58,7 +58,6 @@ interface Question {
     num1: number;
     num2: number;
     guess: number|undefined;
-    
     outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
@@ -80,25 +79,22 @@ export function BattleField(props: BattleFieldProps) {
     //Destructure props
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
+    const [results, setResults] = useState(['']);
 
-    
     //questData contains num1, num2, final guess & outcome for each Question
     const [questData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
     //currentIndex being asked in questData
     const [currentIndex, setCurrentIndex] = useState<number>(0);
-    
-    //Raised from <Battle>
     //State specific to currentQuestion
     const [guess,setGuess] = useState<number|undefined>();
     const [answerChecked, setAnswerChecked] = useState(false);
+    //timerDone is toggled to true when $timeLimit seconds have passed
+    const [timerDone, setTimerDone] = useState(false);
 
+  
 
-    /*MULTI START*/
-    const num1 = questData[currentIndex].num1;
-    const num2 = questData[currentIndex].num2;
-    
-    //destructure current questData
-    //const {num1, num2, guess, outcome} = questData[currentIndex];
+     //Does this increase changes of desync issues?
+     //const battleTerminated = (timerDone || (guess===answer && answerChecked));
 
     //When Battle is done: (timerDone || (guess===answer && answerChecked)) then call handleNextQuestion() in <Battle>
     //      (1) update questData (guess & outcome)
@@ -125,25 +121,48 @@ export function BattleField(props: BattleFieldProps) {
         //setQuestData(questData => )
     }
 
+    function getOutcome(index: number) {
+        if (answerChecked && guess===getAnswer(index)) {
+            return 'Correct';
+        } else {
+            return 'Incorrect';
+        }
+    }
+
+    function getAnswer(index: number) {
+        return questData[index].num1 * questData[index].num2;
+    }
     
 
     function handleUpdateManual() {
-
         if (currentIndex < questData.length) {
-            console.log("manually handle update: ",currentIndex);
-            const newIndex = currentIndex + 1;
+            const indexNow = currentIndex;
+            console.log("manually handle update: ",indexNow);
+            const newIndex = indexNow + 1;
             setCurrentIndex(newIndex);
+            setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)])
             //need to update outcomes/results
             //update props to <Battle> to render next question
-            updateBattle(newIndex);
+            updateBattleProps(newIndex);
         }
     }
 
     //Call this in order to reinitialise setGuess & setAnswer Checked
-    function updateBattle(index: number) {
+    function updateBattleProps(index: number) {
         setGuess(undefined);
         setAnswerChecked(false);
+        setTimerDone(false)
     }
+
+
+    function handleGuess(newGuess: number|undefined): void {
+        if ((answerChecked && getAnswer(currentIndex)===guess) || timerDone) { 
+            console.log("freeze guess field!!");
+        } else {
+            console.log("handleGuess() called:")
+            setGuess(newGuess);
+        }
+    };
 
 
     //Get the current BattleProps based on the current index
@@ -154,19 +173,25 @@ export function BattleField(props: BattleFieldProps) {
             num2: questData[index].num2,
             //Get old values
             timeLimit: timeLimit,
+            timerDone: timerDone,
             guess: guess,
             answerChecked: answerChecked,
+            setTimerDone: setTimerDone,
             setGuess: setGuess,
             setAnswerChecked: setAnswerChecked,
             handleUpdateAuto: () => {},
             handleUpdate: handleUpdateManual,
+            handleGuess: handleGuess,
         }
         return nextBattleProps;
     }
 
+
     
     return (
         <>
+
+            <ViewState  results={results}/>
             <ViewState  index={currentIndex}/>
             <ViewState {...props} />
             <ViewState {...questData} />
@@ -176,19 +201,7 @@ export function BattleField(props: BattleFieldProps) {
         </>
     )
 }
-/*
-<Battle 
-timeLimit={timeLimit} 
-num1={num1} 
-num2={num2} 
-guess={guess}
-answerChecked={answerChecked}
-setGuess={setGuess}
-setAnswerChecked={setAnswerChecked}
-handleUpdateAuto={() => {}} 
-handleUpdate={handleUpdateManual}
-/> 
-*/
+
 
 interface BattleProps {
     timeLimit: number;
@@ -196,12 +209,14 @@ interface BattleProps {
     num2: number;
     guess: number|undefined;
     setGuess: (n: number|undefined) => void;
+    timerDone: boolean;
+    setTimerDone: (b: boolean) => void;
     answerChecked: boolean;
     setAnswerChecked: (b: boolean) => void;
     handleUpdate: any;
     handleUpdateAuto: any;
+    handleGuess: any;
 }
-
 
 
 
@@ -210,31 +225,15 @@ interface BattleProps {
 //if timeUp || correctGuess => alert parent, which will increment currentIndex
 function Battle(props: BattleProps) {
     //destructure
-    const {guess,setGuess,answerChecked,setAnswerChecked} = props;
+    const {guess,setGuess,answerChecked,setAnswerChecked,timerDone,setTimerDone} = props;
     //calculate answer
     const answer = props.num1 * props.num2; 
-    
-
-    //timerDone is toggled to true when $timeLimit seconds have passed
-    const [timerDone, setTimerDone] = useState(false);
-    
-    //Does this increase changes of desync issues?
-    const battleTerminated = (timerDone || (guess===answer && answerChecked));
-
-
 
     //setup handleGuess() function
     //handleGuess will freeze guess user input when 
     //  (1) timer has completed or 
     //  (2) user has inputted correct guess & clicked the check answer button
-    function handleGuess(newGuess: number|undefined): void {
-        if ((answerChecked && answer===guess) || timerDone) { 
-            console.log("freeze guess field!!");
-        } else {
-            console.log("handleGuess() called:")
-            setGuess(newGuess);
-        }
-    };
+
     return (
         //{battleTerminated && props.handleUpdate()}
         <div>
@@ -259,7 +258,7 @@ function Battle(props: BattleProps) {
                 guess={guess}
                 answerChecked={answerChecked}
                 setAnswerChecked={setAnswerChecked}
-                handleGuess={handleGuess}
+                handleGuess={props.handleGuess}
             />
         </div>
     )
