@@ -166,16 +166,29 @@ export function BattleField(this: any, props: BattleFieldProps) {
         
     }
 
+    function incrementIndex() {}
+
+    function resetTimer() {}
+
+    function renderNextQuestion() {}
+
     function handleUpdate() { //outcome: outcome, finalGuess: number
         //Need to make sure it isn't the last question
         console.log("handleUpdate() called");
+        
         if (isLastQuestion(currentIndex)) { //questions remain: updateResults, reset Timer & render nextQuestion
             console.log("REMAIN");
+            updateResults();
+            const indexNow = currentIndex;
+            incrementIndex();
+            resetTimer();
+            renderNextQuestion();
         }
         else { //This is the last question, just updateResults
             console.log("LAST");
+            updateResults();
         }
-        updateResults();
+        
     }
 
     function handleUpdateManual() {
