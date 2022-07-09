@@ -104,6 +104,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //Temporarily pushing results to this array instead of questData
     const [results, setResults] = useState(Array(props.numQuestions).fill(undefined));
+    //alternative results
+    const [res, setRes] = useState(['']);
+
     //questData contains num1, num2, final guess & outcome for each Question
     const [questData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
     //currentIndex being asked in questData
@@ -169,10 +172,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setResults([...cloneResults]);
     }
 
-    function incrementIndex() {
-        setCurrentIndex(currentIndex + 1);
-    }
-
     //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
     //no need to setTimerDone(true) as the next question would setTimerDone(false) straight afterwards
     function resetTimer() {
@@ -180,17 +179,23 @@ export function BattleField(this: any, props: BattleFieldProps) {
     }
 
 
-    type caller = "Time" | "Button" | "Guess" | "Manual" 
-    function handleUpdateManual(callerFunction: caller) {
+    type caller = "Time" | "Check" | "Guess" | "Manual" 
+    //Stages to this function
+    //(1) check if last question
+    //(2) updateResults
+    //(3) resetTimer()
+    ///*newGuess?: number, checked?: boolean*/
+    function handleUpdateManual(caller: caller,  ) {
+        console.log("<<<>>> Caller of handleUpdateManual was: ", caller)
 
-        
         const indexNow = currentIndex;
         const indexNew = currentIndex + 1;
         if (!isLastQuestion(currentIndex)) { 
-            //questions remain: updateResults, reset Timer & render nextQuestion
-            console.log("REMAIN");
-            //updateResults(indexNow);
-            setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
+            console.log("NotLastQuestion");
+            
+            if (caller === "Manual") {
+                setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
+            }
             resetTimer();
             nextQuizQuestionPropsInit();
             setCurrentIndex(indexNew);
@@ -198,8 +203,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
         else { //This is the last question, just updateResults
             console.log("LASTMANGO");
             updateResults(indexNow);
+            setTimeRem(0);
         }   
-
     }
 
 
@@ -233,35 +238,58 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //NOTE: atm, successfull outcome = (answerChecked && getAnswer(currentIndex)===guess) || timerDone
     //Therefore, handleTimerDone() will call updateApp() by default, whereas handleGuess() will need to check questionDone()
 
+    
+
     //handleTimerDone()
     //PURPOSE: setTimerDone(true), call handleUpdateManual then reset Timer
+    //If timeUp then 'Incorrect'
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
         setTimerDone(true);
         setTimeRem(timeLimit);
+        //Update if: always update if timer has finished with 'Incorrect'
+        setResults([...results,'index #' + currentIndex + ': TIMEUP']);
+        setRes([...res,'TIMEUP']);
         handleUpdateManual("Time");
     }
-    
 
+    function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
+        const ans = questData[index].num1 * questData[index].num2;
+        const outcome = (checked && newGuess===ans) 
+            ? 'Correct'
+            : 'Incorrect';
+        setResults([...results,'index #' + index + ' result is: ' + outcome]);
+        setRes([...res,'index# ' + index + ': ' + outcome]);
+
+    }
+    //handleResult(currentIndex, true,answerChecked,guess)
+    
+    
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
         console.log("handleGuess() called:")
         setGuess(newGuess);
-        
-        //handleUpdate()
+        //update if: checkAnswer button was clicked before newGuess was entered
+        const updateNow: boolean = (newGuess !== undefined && (newGuess === getAnswer(currentIndex)) && answerChecked);
+        console.log("value of updateNow is: ",updateNow);
+        if (updateNow) {
+            console.log(">>>>handleGuess() calling handleUpdateManual()");
+            handleResult(currentIndex,answerChecked,newGuess);
+            handleUpdateManual("Guess");
+        }  
     };
 
     function handleCheckAnswerButton() {
         setAnswerChecked(true);
-        //Also need to check updateIfQuestionDone(), in case user entered correct guess before clicking button
-        //updateIfQuestionDone(true,guess);
-        //handleUdpate()
+        //Update if: correct answer was entered before clicking CheckAnswerButton
+        const updateNow = (guess === getAnswer(currentIndex));
+        if (updateNow) {
+            console.log(">>>>checkAnswerButton() calling handleUpdateManual()");
+            handleResult(currentIndex,true,guess);
+            handleUpdateManual("Check");
+        }
     }
-
-
-    
-
 
 
 
@@ -272,6 +300,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         <>
             <>  
                 <ViewState  resultsVerbose={results}/>
+                <ViewState  res={res}/>
                 
                 <ViewState  index={currentIndex}/>
                 <ViewState {...props} />
