@@ -143,12 +143,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         return questData[index].num1 * questData[index].num2;
     }
 
-    //when questionDone() => call handleUpdateManual()
-    //Return true if this question is done & needs time to update outcomes & index
-    function isQuestionDone(answerCheckedArg: boolean, newGuess: number|undefined) {
-        //console.log("isQuestionDone() called: ", "\n    => isQuestionDone: ", (answerChecked && getAnswer(currentIndex)===guess) || timerDone));
-        return (((answerCheckedArg && getAnswer(currentIndex)===newGuess)) || timerDone);
-    }
 
     function isLastQuestion(index: number) {
         //index of last question occurs @ numQuesstions -1 => 
@@ -163,19 +157,15 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
 
 
-    function updateResults(index: number) {
-        //Push to prexisting array
-        //setResults([...results,'index #' + index + ' result is: ' + getOutcome(index)])
-        const cloneResults = results.slice();
-        //mutate and return result @index
-        cloneResults[index] = getOutcome(index); 
-        setResults([...cloneResults]);
-    }
 
     //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
     //no need to setTimerDone(true) as the next question would setTimerDone(false) straight afterwards
     function resetTimer() {
         setTimeRem(timeLimit);
+    }
+
+    function finishTimer() {
+        setTimeRem(0);
     }
 
 
@@ -185,25 +175,26 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //(2) updateResults
     //(3) resetTimer()
     ///*newGuess?: number, checked?: boolean*/
-    function handleUpdateManual(caller: caller,  ) {
+    function handleUpdateManual(caller: caller) {
         console.log("<<<>>> Caller of handleUpdateManual was: ", caller)
 
         const indexNow = currentIndex;
         const indexNew = currentIndex + 1;
+        //Only submit results from here if triggered by clicking button
+        if (caller === "Manual") {
+            setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
+        }
         if (!isLastQuestion(currentIndex)) { 
             console.log("NotLastQuestion");
             
-            if (caller === "Manual") {
-                setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
-            }
-            resetTimer();
+
+            resetTimer()
             nextQuizQuestionPropsInit();
             setCurrentIndex(indexNew);
         }
         else { //This is the last question, just updateResults
-            console.log("LASTMANGO");
-            updateResults(indexNow);
-            setTimeRem(0);
+            console.log("question");
+            finishTimer();
         }   
     }
 
