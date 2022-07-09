@@ -60,65 +60,34 @@ interface Question {
 
 
 
-/*BattleField() coordinates running multiple questions with time delays and records the results
-   (0) Modify handlers()
-       - for scalability, we want the handlers to do what you would expect, then call the updateIfQuestionDone() function
-       - 2 reasons: 
-       - (1) separate business logic from intuitive purpose of handlers
-       - (2) if requirements of questionDone change, it will be easier to update
-
-   (a) handleTimerDone() 
-        - For now, we know this definitely => call updateApp() but this may change 
-   (b) handleGuess() 
-        - call updateIfQuestionDone().... be careful of stale data
-
-   (1) define function updateIfQuestionDone() {
-        if (questionDone())  //When (guessedCorrect || timerDone)  
-        then do the following:
-        (2) record results 
-        (3) currentIndex++;
-        (4) reset <Timer> 
-        (5) "rerender" <QuizQuestion> by:
-            (a) provide props to next question
-            (b) initialise raised state variables
-
-    }
-    Let's split up the workload:
-    (1) updateIfQuestionDone() 
-        => updateApp() includes following:
-    
-    (2) updateResults
-    (3) incrementIndex
-    (4) reset <Timer>
-    (5) reset <QuizQuestion>
-
-    
-*/
-
-//const questData = buildQuestions(numQuestions,lowerBound,upperBound);
-
+/*BattleField() coordinates running multiple questions with time delays and records the results*/
 
 export function BattleField(this: any, props: BattleFieldProps) { 
 
     //Destructure props
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
-    //Temporarily pushing results to this array instead of questData
-    //const [results, setResults] = useState(Array(props.numQuestions).fill(undefined));
-    //alternative results
+    
+    
+    //results
     const [res, setRes] = useState(['']);
-    //questData contains num1, num2, final guess & outcome for each Question
+    //questData contains nested arrays with num1, num2 where questionAnswer = num1 * num2
     const [questData] = useState<Question[]>(buildQuestions(numQuestions,lowerBound,upperBound));
-    //currentIndex being asked in questData
+    //currentIndex of question being displayed
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     
-    //State specific to currentQuestion
+    //guess contains the current value displayed on the guess field
     const [guess,setGuess] = useState<number|undefined>();
+    //answerChecked is set to true when user clicks checkAnswer button, reset to false when current question is done
     const [answerChecked, setAnswerChecked] = useState(false);
 
     //timerDone is toggled to true when (timeRem===0) <=> $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
+    //timeRem: time remaining in the CountDown for user to correctly guess the answer
     const [timeRem, setTimeRem] = useState(props.timeLimit);
+
+    //progress: this will be display as user progresses through the questions
+    
 
 
 
@@ -288,6 +257,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
         </>
     )
 }
+
+
 
 
 
