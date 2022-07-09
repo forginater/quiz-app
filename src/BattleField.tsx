@@ -72,7 +72,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //results
     const [res, setRes] = useState(['']);
     //questData contains nested arrays with num1, num2 where questionAnswer = num1 * num2
-    const [questData] = useState<Question[]>(buildQuestions(numQuestions,lowerBound,upperBound));
+    const [questData] = useState<Question[]>(() => buildQuestions(numQuestions,lowerBound,upperBound));
     //currentIndex of question being displayed
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     
@@ -87,7 +87,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
 
     //progress: this will be display as user progresses through the questions
-    
+    const [progress, setProgress] = useState(0);
 
 
 
@@ -107,7 +107,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     function isLastQuestion(index: number) {
         //index of last question occurs @ numQuesstions -1 => 
-        return (index === (numQuestions - 2)) ? true : false;
+        return (index === (numQuestions - 1)) ? true : false;
     }
 
     ////////////////////////////////////////////////////////////
@@ -192,7 +192,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
         const outcome = (checked && newGuess===ans) 
             ? 'Correct'
             : 'Incorrect';
-        //setResults([...results,'index #' + index + ' result is: ' + outcome]);
+        //update progress value if correct answer
+        if (outcome === 'Correct') {
+            setProgress(prev => prev + 1);
+        }
         setRes([...res,'index# ' + index + ': ' + outcome]);
 
     }
@@ -252,13 +255,26 @@ export function BattleField(this: any, props: BattleFieldProps) {
                 <div>
                     <ManualUpdateButton onClick={handleUpdateManual}/>
                     <br/>
+                    <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex}/>
+                    <br/>
+
                     <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
                 </div>
         </>
     )
 }
 
+//Display the user's progress
+function DisplayProgress(props: {progress: number, numQuestions: number, currentIndex: number}) {
 
+    const remainingQuestions = props.numQuestions - props.currentIndex;
+    return (
+        <>
+            <p>Progress: {props.progress} / {props.numQuestions} Correct! </p>
+            <p>Remaining: {remainingQuestions} questions </p>
+        </>
+    )
+}
 
 
 

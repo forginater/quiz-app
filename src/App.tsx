@@ -14,8 +14,8 @@ import {genRandNum} from './genRandNum';
 //Get settings from user then render the quiz, finally display results to user
 function App() {
   //App settings are hardcoded by default but can be changed by user in the <EnterSettings> component
-  const [timeLimit, setTimeLimit] = useState<number>(30);
-  const [numQuestions, setNumQuestions] = useState<number>(10);
+  const [timeLimit, setTimeLimit] = useState<number>(10);
+  const [numQuestions, setNumQuestions] = useState<number>(4);
   const [lowerBound, setLowerBound] = useState<number>(0);
   const [upperBound, setUpperBound] = useState<number>(10);
   
