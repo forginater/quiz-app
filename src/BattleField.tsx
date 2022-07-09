@@ -5,7 +5,7 @@ import './App.css';
 import {useState, useEffect, useRef} from 'react';
 import { Quiz } from './Quiz';
 import {genRandNum} from './genRandNum';
-import {QuizQuestion, QuizQuestionProps, ViewState} from './QuizQuestion';
+import {QuizQuestion, QuizQuestionProps, ViewState, ViewStateNewLine} from './QuizQuestion';
 import { count } from 'console';
 import { BasicCounter } from './TimerComponents';
 
@@ -104,6 +104,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //Temporarily pushing results to this array instead of questData
     const [results, setResults] = useState(Array(props.numQuestions).fill(undefined));
+    const [resultsVerbose, setResultsVerbose] = useState(Array(props.numQuestions).fill(undefined));
     //questData contains num1, num2, final guess & outcome for each Question
     const [questData, setQuestData] = useState<Question[]>(getQuestData(numQuestions,lowerBound,upperBound));
     //currentIndex being asked in questData
@@ -116,8 +117,27 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //timerDone is toggled to true when (timeRem===0) <=> $timeLimit seconds have passed
     const [timerDone, setTimerDone] = useState(false);
     const [timeRem, setTimeRem] = useState(props.timeLimit);
+
   
-    
+    const allState = {
+        results: results,
+        currentIndex: currentIndex,
+        guess: guess,
+        answerChecked: answerChecked,
+        timerDone: timerDone,
+        timeRem: timeRem,
+    }
+
+    function viewAllState() {
+        const obj = allState;
+        const entries = Object.entries(obj);
+        console.log("viewAllState:");
+        for (const [key,value] of entries) {
+            console.log("key: ", key, "         value: ",value);
+            
+        }
+    }
+
     
 
     //BUSINESS LOGIC:
@@ -143,9 +163,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //when questionDone() => call handleUpdateManual()
     //Return true if this question is done & needs time to update outcomes & index
-    function isQuestionDone(newGuess: number|undefined) {
+    function isQuestionDone(answerCheckedArg: boolean, newGuess: number|undefined) {
         //console.log("isQuestionDone() called: ", "\n    => isQuestionDone: ", (answerChecked && getAnswer(currentIndex)===guess) || timerDone));
-        return (answerChecked && getAnswer(currentIndex)===newGuess) || timerDone;
+        return (((answerCheckedArg && getAnswer(currentIndex)===newGuess)) || timerDone);
     }
 
     function isLastQuestion(index: number) {
@@ -157,13 +177,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     ////////////////////////////////////////////////////////////
     //UPDATER FUNCTIONS
-    function updateIfQuestionDone(newGuess: number|undefined) {
-        console.log("updateIfQuestionCalled()");
-        if (isQuestionDone(newGuess)) {
-            console.log("updateIfQuestionCalled() true => callUpdate()");
-            handleUpdate();
-        }
-    }
+
+
+
 
     function updateResults(index: number) {
         //Push to prexisting array
@@ -200,17 +216,59 @@ export function BattleField(this: any, props: BattleFieldProps) {
         if (isLastQuestion(currentIndex)) { 
             //questions remain: updateResults, reset Timer & render nextQuestion
             console.log("REMAIN");
-            updateResults(indexNow);
-            incrementIndex();
+            //updateResults(indexNow);
+            setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
             resetTimer();
-            renderNextQuestion();
+            nextQuizQuestionPropsInit();
+            incrementIndex();
         }
         else { //This is the last question, just updateResults
             console.log("LAST");
             updateResults(indexNow);
+        }   
+    }
+
+    //Write it all out slowly, then refactor into other functions:
+    //Confirm at beginning that no state values are stale
+    function handleUpdateVerbose(latestGuess: number|undefined, latestClicked: boolean, latestTimerDone: boolean) {
+        const indexNow = currentIndex;
+        const ans = getAnswer(currentIndex);
+        const res = latestGuess===ans;
+        const n1 = questData[currentIndex].num1;
+        const n2 = questData[currentIndex].num2;
+        const questionDone = ((res && latestClicked) || timerDone);
+        console.log("handleUpdateVerbose:"," index:",indexNow," ans:",ans," res:",res," n1:",n1," n2:",n2, " done:",questionDone, " guess:",latestGuess," click:",latestClicked," timer:",latestTimerDone);
+        
+        
+        if (questionDone) { //time to update
+            if (currentIndex < (questData.length -2)) { //not the last question
+                //set results
+                
+                //const cloned = [...resultsVerbose]
+                //const updated = cloned.splice(currentIndex,1,{ans: ans,res: res, guess:guess});
+                //console.log("JSON",JSON.stringify(updated));
+                //setResultsVerbose([...updated]);
+                
+                //setResultsVerbose([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow) + ' guess was: ',latestGuess]);
+                //setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)]);
+                console.log("questionDone Loop")
+                
+                //resetTimer
+                //resetProps
+                //incrementIndex
+
+
+            } else { //last question
+        
+            }
         }
         
+
+
     }
+
+
+
 
     function handleUpdateManual() {
         if (true) {
@@ -227,7 +285,21 @@ export function BattleField(this: any, props: BattleFieldProps) {
             setResults([...results,'index #' + indexNow + ' result is: ' + getOutcome(indexNow)])
             //need to update outcomes/results
             //update props to <Battle> to render next question
-            nextQuizQuestionPropsInit(newIndex);
+            nextQuizQuestionPropsInit();
+        }
+    }
+
+    function updateIfQuestionDone(answerCheckedArg: boolean, newGuess: number|undefined) {
+        const num1 = questData[currentIndex].num1;
+        const num2 = questData[currentIndex].num2;
+        console.log("updateIfQuestionCalled()");
+        console.log("==>>DEBUG: updateIf(), ","result= ", (newGuess===(questData[currentIndex].num1 * questData[currentIndex].num2)), "     answerChecked: ", answerChecked, "       timerDone: ", timerDone,    "guess: ",guess, "  currentIndex: ",currentIndex, "question: ",num1,"x",num2 );
+        let condition = isQuestionDone(answerCheckedArg,newGuess);
+        //condition = (((answerCheckedArg && getAnswer(currentIndex)===newGuess)) || timerDone);
+        
+        if ( (answerCheckedArg&&(newGuess===(questData[currentIndex].num1 * questData[currentIndex].num2))) || timerDone ) {
+            console.log("updateIfQuestionCalled() true => callUpdate()");
+            handleUpdate();
         }
     }
 
@@ -241,13 +313,14 @@ export function BattleField(this: any, props: BattleFieldProps) {
             guess: guess,
             answerChecked: answerChecked,
             setAnswerChecked: setAnswerChecked,
+            handleCheckAnswerButton: handleCheckAnswerButton,
             handleGuess: handleGuess,
         }
     }
 
     //nextQuizQuestionPropsInit()
     //PURPOSE: Reset state => reinitialise <QuizQuestion> for next question
-    function nextQuizQuestionPropsInit(index: number) {
+    function nextQuizQuestionPropsInit() {
         setGuess(undefined);
         setAnswerChecked(false);
         setTimerDone(false)
@@ -264,7 +337,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
         setTimerDone(true);
-        handleUpdate();
+        //handleUpdate();
+        handleUpdateVerbose(guess,answerChecked,true);
         setTimeRem(timeLimit);
     }
     
@@ -272,27 +346,59 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
+        debugGuess(newGuess);
         console.log("handleGuess() called:")
         setGuess(newGuess);
-        updateIfQuestionDone(newGuess); //update if answerChecked & guess===answer
+        //updateIfQuestionDone(answerChecked,newGuess); //update if answerChecked & guess===answer
+        handleUpdateVerbose(newGuess,answerChecked,timerDone);
     };
 
     function handleCheckAnswerButton() {
+        debugButton(true);
         setAnswerChecked(true);
         //Also need to check updateIfQuestionDone(), in case user entered correct guess before clicking button
-        updateIfQuestionDone(guess);
+        //updateIfQuestionDone(true,guess);
+        handleUpdateVerbose(guess,true,timerDone);
     }
 
 
+    
+    function debugGuess(newGuess: number|undefined) {
+        const answerCheckedArg = answerChecked
+        const num1 = questData[currentIndex].num1;
+        const num2 = questData[currentIndex].num2;
+        console.log("\nDEBUG GUESS ", "", answerCheckedArg,      "result= ", (newGuess===(questData[currentIndex].num1 * questData[currentIndex].num2)), "     answerChecked: ", answerChecked, "       timerDone: ", timerDone,    "guess: ",guess, "  currentIndex: ",currentIndex, "question: ",num1,"x",num2 );
+     }
+
+     function debugButton(answerCheckedArg: boolean) {
+        const newGuess = guess;
+        const num1 = questData[currentIndex].num1;
+        const num2 = questData[currentIndex].num2;
+        console.log("\nDEBUG BUTTON", "", answerCheckedArg, "result= ", (newGuess===(questData[currentIndex].num1 * questData[currentIndex].num2)), "     answerChecked: ", answerChecked, "       timerDone: ", timerDone,    "guess: ",guess, "  currentIndex: ",currentIndex, "question: ",num1,"x",num2 );
+     }
 
 
 
 
     ////////////////////////////////////////////////////////////
     //BattleField return JSX component
+    //<ViewState  results={results}/>
     return (
         <>
             <>  
+                <ViewState  resultsVerbose={results}/>
+                
+                <ViewState  index={currentIndex}/>
+                <ViewState {...props} />
+                <ViewState {...questData} />
+                <label>
+                    viewStateInConsole:
+                    <input 
+                    type="button"
+                    value="ViewState:"
+                    onClick={(e) => viewAllState()}
+                    />                    
+                </label>
                 <br/>
                 <BasicCounter 
                     timeRem={timeRem}
@@ -301,10 +407,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
                 />
                 <br/><br/><br/>
 
-                <ViewState  results={results}/>
-                <ViewState  index={currentIndex}/>
-                <ViewState {...props} />
-                <ViewState {...questData} />
                 
                 
 
@@ -317,6 +419,11 @@ export function BattleField(this: any, props: BattleFieldProps) {
         </>
     )
 }
+
+/* 
+                <ViewStateNewLine  allState={allState}/>
+
+*/
 
 
 //ManualUpdateButton allows it to manually update to the next question 

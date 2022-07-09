@@ -13,6 +13,7 @@ export interface QuizQuestionProps {
   guess: number|undefined;
   answerChecked: boolean;
   setAnswerChecked: (b: boolean) => void;
+  handleCheckAnswerButton: () => void;
   handleGuess: (n: number|undefined) => void;
   
 }
@@ -20,7 +21,7 @@ export interface QuizQuestionProps {
 export function QuizQuestion(props: QuizQuestionProps) {
 
   //destructure props
-  const {num1,num2,answerChecked,setAnswerChecked,guess,handleGuess} = props;
+  const {num1,num2,answerChecked,setAnswerChecked,handleCheckAnswerButton,guess,handleGuess} = props;
 
   //derive answer from props
   const answer = num1 * num2; 
@@ -39,7 +40,7 @@ export function QuizQuestion(props: QuizQuestionProps) {
         <Guess guess={guess} handleGuess={handleGuess}/>
 
         {/*Check answer button*/}
-        {!answerChecked && <AnswerButton setAnswerChecked={setAnswerChecked}/>  }
+        {!answerChecked && <AnswerButton handleCheckAnswerButton={handleCheckAnswerButton}/>  }
 
         {/*If (answerChecked) then: replace AnswerButton => with DisplayResult*/}
         {answerChecked && <DisplayResult correct={guess===answer}/>}  
@@ -78,7 +79,7 @@ function Guess(props: GuessProps) {
   )
 }
 
-function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
+function AnswerButton(props: {handleCheckAnswerButton: () => void}) {
   return (
     <>
       <label>
@@ -86,7 +87,7 @@ function AnswerButton(props: {setAnswerChecked: (b:boolean) => void}) {
           type="button"
           value="Check answer:"
           onClick={(e) => {
-            props.setAnswerChecked(true);
+            props.handleCheckAnswerButton();
           }}
         />
       </label>
@@ -104,6 +105,18 @@ function DisplayResult(props: {correct: boolean}) {
 
 export function ViewState(props: any) {
   const viewState = JSON.stringify(props,null,4);
+  return (
+    <div>
+      <br/>
+      <hr/>
+      <h3>{viewState}</h3>
+      <hr/>
+    </div>);
+}
+
+export function ViewStateNewLine(props: any) {
+  const viewState = JSON.stringify(props,null,'\t');
+
   return (
     <div>
       <br/>
