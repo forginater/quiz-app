@@ -58,6 +58,13 @@ interface Question {
     //outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
+interface Outcomes {
+    finalGuess: number|undefined;
+    result: "Correct" | "Incorrect" | "TimeUp";
+}
+
+
+
 
 
 /*BattleField() coordinates running multiple questions with time delays and records the results*/
@@ -69,10 +76,12 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     
     
-    //results
+    //result: push basic result: 'Incorrect', 'Correct', 'TimeUp'
     const [res, setRes] = useState(['']);
-    //questData contains nested arrays with num1, num2 where questionAnswer = num1 * num2
-    const [questData] = useState<Question[]>(() => buildQuestions(numQuestions,lowerBound,upperBound));
+    //more substantial results:
+    const [outcomes, setOutcomes] = useState();
+    //questionsArr contains nested arrays with num1, num2 where questionAnswer = num1 * num2
+    const [questionsArr] = useState<Question[]>(() => buildQuestions(numQuestions,lowerBound,upperBound));
     //currentIndex of question being displayed
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     
@@ -86,9 +95,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //timeRem: time remaining in the CountDown for user to correctly guess the answer
     const [timeRem, setTimeRem] = useState(props.timeLimit);
 
-    //progress: this will be display as user progresses through the questions
+    //progress: correct answers 
     const [progress, setProgress] = useState(0);
-
+    //Have all questions been answered yet?
+    const [battleDone, setBattleDone] = useState(false);
 
 
     //BUSINESS LOGIC:
@@ -101,7 +111,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //get the answer the question corresponding to index in argument
     function getAnswer(index: number) {
-        return questData[index].num1 * questData[index].num2;
+        return questionsArr[index].num1 * questionsArr[index].num2;
     }
 
 
@@ -135,9 +145,11 @@ export function BattleField(this: any, props: BattleFieldProps) {
             nextQuizQuestionPropsInit();
             setCurrentIndex(nextIndex);
         }
-        else { //This is the last question, just updateResults
+        else { //This is the last question, just updateResults & set battleDone 
             console.log("question");
             finishTimer();
+            setBattleDone(true);
+
         }   
     }
 
@@ -147,8 +159,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function getQuizQuestionProps(index: number) {
         return {
             //Get questions from current question
-            num1: questData[index].num1,
-            num2: questData[index].num2,
+            num1: questionsArr[index].num1,
+            num2: questionsArr[index].num2,
             //Get old values
             guess: guess,
             answerChecked: answerChecked,
@@ -163,7 +175,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function nextQuizQuestionPropsInit() {
         setGuess(undefined);
         setAnswerChecked(false);
-        setTimerDone(false)
+        setTimerDone(false);
     }
 
     ////////////////////////////////////////////////////////////
@@ -183,12 +195,12 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setTimeRem(timeLimit);
         //Update if: always update if timer has finished with 'Incorrect'
         //setResults([...results,'index #' + currentIndex + ': TIMEUP']);
-        setRes([...res,'TIMEUP']);
+        setRes([...res,"TimeUp"]);
         handleUpdateManual("Time");
     }
 
     function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
-        const ans = questData[index].num1 * questData[index].num2;
+        const ans = questionsArr[index].num1 * questionsArr[index].num2;
         const outcome = (checked && newGuess===ans) 
             ? 'Correct'
             : 'Incorrect';
@@ -239,7 +251,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
                 
                 <ViewState  index={currentIndex}/>
                 <ViewState {...props} />
-                <ViewState {...questData} />
+                <ViewState {...questionsArr} />
                 <br/>
                 <BasicCounter 
                     timeRem={timeRem}
@@ -259,7 +271,17 @@ export function BattleField(this: any, props: BattleFieldProps) {
                     <br/>
 
                     <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
+                    {battleDone && <DisplayHumiliation youAre={"A big dickface boy"}/>}
+                    
                 </div>
+        </>
+    )
+}
+
+function DisplayHumiliation(props: {youAre: string}) {
+    return (
+        <>
+            What you are: {props.youAre}
         </>
     )
 }
@@ -294,7 +316,7 @@ function ManualUpdateButton(props: {onClick: any}) {
 }
 
 
-//buildQuestions() builds the initial input for the questData useState hook with numQuestions * Question objects
+//buildQuestions() builds the initial input for the questionsArr useState hook with numQuestions * Question objects
 function buildQuestions(numQuestions: number, lowerBound: number, upperBound: number): Question[] {
     return Array(numQuestions).fill(undefined).map((question) => {
         return {
