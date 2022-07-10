@@ -59,9 +59,9 @@ interface Question {
     //outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
-interface Outcomes {
+interface Outcome {
     finalGuess: number | undefined;
-    result: "Correct" | "Incorrect" | undefined; /*| "TimeUp"*/
+    result: string | undefined;  //"Correct" | "Incorrect" | "TimeUp" | undefined
 }
 
 
@@ -89,7 +89,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //result: push basic result: 'Incorrect', 'Correct', 'TimeUp'
     const [res, setRes] = useState(['']);
     //more substantial results:
-    const [outcomes, setOutcomes] = useState<Outcomes[]>(() => buildOutcomes(numQuestions));
+    const [outcomes, setOutcomes] = useState<Outcome[]>(() => buildOutcomes(numQuestions));
     //questionsArr contains nested arrays with num1, num2 where questionAnswer = num1 * num2
     const [questionsArr] = useState<Question[]>(() => buildQuestions(numQuestions,lowerBound,upperBound));
     //currentIndex of question being displayed
@@ -107,6 +107,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
     //progress: correct answers 
     const [progress, setProgress] = useState(0);
+    const [clockRunning, setClockRunning] = useState(true);
 
 
     //BUSINESS LOGIC:
@@ -139,7 +140,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     }
 
     function finishTimer() {
-        setTimeRem(0);
+        setClockRunning(false);
     }
 
 
@@ -205,22 +206,40 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //always update if timer, except
         //has finished with 'Incorrect'
         //setResults([...results,'index #' + currentIndex + ': TIMEUP']);
+        //Need to check here: if this is final question x: don't need to update
         setRes([...res,"TimeUp"]);
+        updateOutcomes(currentIndex, {finalGuess: undefined, result: "TimeUp"})
         handleUpdateManual("Time");
     }
 
     //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update the store the result
     function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
         const ans = questionsArr[index].num1 * questionsArr[index].num2;
-        const outcome = (checked && newGuess===ans) //If
+        const newResult = (checked && newGuess===ans) //If
             ? 'Correct'
             : 'Incorrect';
         //update progress value if correct answer
-        if (outcome === 'Correct') {
+        if (newResult === 'Correct') {
             setProgress(prev => prev + 1);
         }
-        setRes([...res,'index# ' + index + ': ' + outcome]);
+        //push results to res
+        setRes([...res,'index# ' + index + ': ' + newResult]);
+        //push results to outcomes
+        const newOutcome = {finalGuess: newGuess, result: newResult}
+        updateOutcomes(index,newOutcome)
 
+    }
+
+    /*
+    interface Outcome {
+    finalGuess: number | undefined;
+    result: "Correct" | "Incorrect" | undefined; 
+    } */
+
+    function updateOutcomes(index: number, newOutcome: Outcome) {
+        const clonedOutcomes = outcomes.slice();
+        clonedOutcomes[index] = {...newOutcome};
+        setOutcomes([...clonedOutcomes]);
     }
     
     
@@ -265,6 +284,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
                 <ViewState {...questionsArr} />
                 <br/>
                 <BasicCounter 
+                    clockRunning={clockRunning}
                     timeRem={timeRem}
                     setTimeRem={setTimeRem}
                     handleTimerDone={handleTimerDone}
@@ -275,7 +295,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
                 <div>
                     <ManualUpdateButton onClick={handleUpdateManual}/>
                     <br/>
-                    <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length}/>
+                    <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
                     <br/>
                     <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
                 </div>
@@ -291,8 +311,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
 //Display the user's progress
 function DisplayProgress(props: {progress: number, numQuestions: number, currentIndex: number, questionsSubmitted: number}) {
 
-    const remainingQuestions = props.numQuestions - (props.questionsSubmitted - 1)
-    
+    let remainingQuestions = props.numQuestions - (props.questionsSubmitted - 1)
+    remainingQuestions = remainingQuestions > 0 ? remainingQuestions : 0;
     return (
         <>
             <p>Progress: {props.progress} / {props.numQuestions} Correct! </p>
@@ -329,10 +349,12 @@ function buildQuestions(numQuestions: number, lowerBound: number, upperBound: nu
 })
 }
 
-function buildOutcomes(numQuestions: number): Outcomes[] {
+function buildOutcomes(numQuestions: number): Outcome[] {
     const newArr = Array(numQuestions).fill(undefined);
     const objectified = newArr.map((elem) => {
         return {finalGuess: undefined, result: undefined,};
     });
     return objectified;
 }
+
+

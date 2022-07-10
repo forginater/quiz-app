@@ -383,11 +383,7 @@ interface Question {
                     />                    
                 </label>
                 <br/>
-                <BasicCounter 
-                    timeRem={timeRem}
-                    setTimeRem={setTimeRem}
-                    handleTimerDone={handleTimerDone}
-                />
+
                 <br/><br/><br/>
 
                 
@@ -405,6 +401,11 @@ interface Question {
 
 /* 
                 <ViewStateNewLine  allState={allState}/>
+                                <BasicCounter 
+                    timeRem={timeRem}
+                    setTimeRem={setTimeRem}
+                    handleTimerDone={handleTimerDone}
+                />
 
 */
 
