@@ -107,8 +107,6 @@ function PatheticHumanWeep(props: PatheticHumanWeepProps) {
 
 }
 
-
-
 /*BattleField() coordinates running multiple questions with time delays and records the results*/
 export function BattleField(this: any, props: BattleFieldProps) { 
 
@@ -178,8 +176,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
 
     type caller = "Time" | "Check" | "Guess" | "Manual" 
-    function handleUpdateManual(caller: caller) {
-        console.log("<<<>>> Caller of handleUpdateManual was: ", caller)
+    function handleUpdate(caller: caller) {
+        console.log("<<<>>> Caller of handleUpdate was: ", caller)
         const nextIndex = currentIndex + 1;
         if (!isLastQuestion(currentIndex)) { 
             console.log("NotLastQuestion");
@@ -194,8 +192,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
         }   
     }
-
-
 
     //Get the current BattleProps based on the current index. Used by handleUpdate() which is invoked by handlers() when questionDone
     function getQuizQuestionProps(index: number) {
@@ -226,10 +222,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //NOTE: atm, successfull outcome = (answerChecked && getAnswer(currentIndex)===guess) || timerDone
     //Therefore, handleTimerDone() will call updateApp() by default, whereas handleGuess() will need to check questionDone()
 
-    
-
     //handleTimerDone()
-    //PURPOSE: setTimerDone(true), call handleUpdateManual then reset Timer
+    //PURPOSE: setTimerDone(true), call handleUpdate then reset Timer
     //If timeUp then 'Incorrect'
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
@@ -241,7 +235,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //Need to check here: if this is final question x: don't need to update
         setRes([...res,"TimeUp"]);
         updateOutcomes(currentIndex, {finalGuess: undefined, result: "TimeUp"})
-        handleUpdateManual("Time");
+        handleUpdate("Time");
     }
 
     //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update the store the result
@@ -259,7 +253,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //push results to outcomes
         const newOutcome = {finalGuess: newGuess, result: newResult}
         updateOutcomes(index,newOutcome)
-
     }
 
     /*
@@ -267,7 +260,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
     finalGuess: number | undefined;
     result: "Correct" | "Incorrect" | undefined; 
     } */
-
     function updateOutcomes(index: number, newOutcome: Outcome) {
         const clonedOutcomes = outcomes.slice();
         clonedOutcomes[index] = {...newOutcome};
@@ -284,41 +276,30 @@ export function BattleField(this: any, props: BattleFieldProps) {
         const updateNow: boolean = (newGuess !== undefined && (newGuess === getAnswer(currentIndex)) && answerChecked);
         console.log("value of updateNow is: ",updateNow);
         if (updateNow) {
-            console.log(">>>>handleGuess() calling handleUpdateManual()");
             handleResult(currentIndex,answerChecked,newGuess);
-            handleUpdateManual("Guess");
+            handleUpdate("Guess");
         }  
     };
 
+    //handleCheckAnswerButton() is called when CheckAnswer button clicked:
     function handleCheckAnswerButton() {
         setAnswerChecked(true);
         //Update if: correct answer was entered before clicking CheckAnswerButton
         const updateNow = (guess === getAnswer(currentIndex));
         if (updateNow) {
-            console.log(">>>>checkAnswerButton() calling handleUpdateManual()");
+            console.log(">>>>checkAnswerButton() calling handleUpdate()");
             handleResult(currentIndex,true,guess);
-            handleUpdateManual("Check");
+            handleUpdate("Check");
         }
     }
 
-    const testingMode = false;
-
-    ////////////////////////////////////////////////////////////
+    //////////////////////////////////
     //BattleField return JSX component
     return (
         <>
             {!battleCompleted && 
                 <>  
                     <div>
-                        {testingMode && <>
-                        <ViewState  outcomes={outcomes}/>
-                        <ViewState  res={res}/>
-                        
-                        <ViewState  index={currentIndex}/>
-                        <ViewState {...props} />
-                        <ViewState {...questionsArr} />
-                        </>}
-
                         <br/>
                         <BasicCounter 
                             clockRunning={clockRunning}
@@ -331,11 +312,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
                 
                     <div>
-                        <ManualUpdateButton onClick={handleUpdateManual}/>
-                        <br/>
-                        <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
                         <br/>
                         <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
+                        <br/>
+                        <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
                     </div>
                 </>
             }
@@ -363,20 +343,6 @@ function DisplayProgress(props: {progress: number, numQuestions: number, current
 
 
 
-//ManualUpdateButton allows us to manually update to the next question rather than needing Correct answer or timeUp
-//TESTING:
-function ManualUpdateButton(props: {onClick: any}) { 
-    return (
-        <label>
-            ManualUpdate:
-            <input 
-                type="button"
-                value="ManualUpdate()"
-                onClick={(e) => {props.onClick("Manual")}}
-            />
-        </label>
-    )
-}
 
 
 //buildQuestions() builds the initial input for the questionsArr useState hook with numQuestions * Question objects
@@ -398,3 +364,18 @@ function buildOutcomes(numQuestions: number): Outcome[] {
 }
 
 
+
+//ManualUpdateButton allows us to manually update to the next question rather than needing Correct answer or timeUp
+//TESTING PURPOSES:
+function ManualUpdateButton(props: {onClick: any}) { 
+    return (
+        <label>
+            ManualUpdate:
+            <input 
+                type="button"
+                value="ManualUpdate()"
+                onClick={(e) => {props.onClick("Manual")}}
+            />
+        </label>
+    )
+}

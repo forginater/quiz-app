@@ -46,7 +46,7 @@ export function QuizQuestion(props: QuizQuestionProps) {
         {answerChecked && <DisplayResult correct={guess===answer}/>}  
 
         
-        <ViewState {...props} />
+        
         
     </div>
   );
