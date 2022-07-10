@@ -23,7 +23,7 @@ function App() {
 
   //startClicked toggled once user has entered (valid) settings & presses <StartButton>
   //if the settings are invalid a warning message will be displayed in <StartButton>
-  const [startClicked, setStartClicked] = useState<boolean>(false)
+  const [startClicked, setStartClicked] = useState<boolean>(false);
   //validateSettings used by <StartButton> to make sure timeLimit & numQuestions have valid input values, this is used by 
   const settingsValid = !Number.isNaN(timeLimit) && !Number.isNaN(numQuestions);
 
@@ -50,7 +50,7 @@ function App() {
             <StartButton setStartClicked={setStartClicked} validateSettings={settingsValid} />
         </>
         }
-        {startClicked && 
+        {startClicked &&
           <BattleField 
             timeLimit={timeLimit} 
             numQuestions={numQuestions} 
@@ -58,6 +58,7 @@ function App() {
             upperBound={upperBound}
           />}
         {/*To IMPLEMENT: Once quiz has been completed: display results*/}
+
         
       </div>
     </div>
@@ -93,7 +94,5 @@ function StartButton(props: StartButtonProps) {
     </div>
   )
 }
-
-
 
 export default App;
