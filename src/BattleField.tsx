@@ -52,32 +52,64 @@ export interface BattleFieldProps {
 
 
 //for each individual quiz question, 'Question' interface used to store the numbers used to form the question , the latest guess & the outcome 
-interface Question {
+export interface Question {
     num1: number;
     num2: number;
     //guess: number|undefined;
     //outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
-interface Outcome {
+export interface Outcome {
     finalGuess: number | undefined;
     result: string | undefined;  //"Correct" | "Incorrect" | "TimeUp" | undefined
 }
 
+type ZippedTuple = [question: Question, outcome : Outcome];
 
-
-function DisplayHumiliation(props: any) {
+function DisplayHumiliation(props: {outcomes: Outcome[], questions: Question[]}) {
+    //Combine each question/outcome pair a tuple 
+    const zippedArr: ZippedTuple[] = props.questions.map((question,indexZip) => {
+        return [question,props.outcomes[indexZip]];
+    });
     return (
       <>
         <h1>Quiz Completed!!</h1>
+        <li>
+                {zippedArr.map((res) => <PatheticHumanWeep zip={res} />)}
+        </li>
       </>
     )
   }
 
 
+interface PatheticHumanWeepProps {zip: ZippedTuple;}
+function PatheticHumanWeep(props: PatheticHumanWeepProps) {
+    const [question,outcome] = props.zip;
+    const questStr = `Question: ${question.num1} x ${question.num2} = ${question.num1*question.num2}`;
+    
+    //Return result of outcome unless undefined
+    const validOutcome = outcome.result === 'TimeUp' || outcome.result === 'Incorrect' || outcome.result || 'Correct';
+    let resultStr = validOutcome 
+        ? `Outcome: ${outcome.result}` 
+        : `Something Went Wrong`;
+
+    return ( 
+        <dl>
+            <dd>
+                {questStr} 
+            </dd>
+            <dd>
+                {resultStr}
+            </dd>
+        </dl>
+
+    )
+
+}
+
+
 
 /*BattleField() coordinates running multiple questions with time delays and records the results*/
-
 export function BattleField(this: any, props: BattleFieldProps) { 
 
     //Destructure props
@@ -139,6 +171,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setTimeRem(timeLimit);
     }
 
+    //when clockRunning is false, Timer stops running
     function finishTimer() {
         setClockRunning(false);
     }
@@ -157,7 +190,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         else { //This is the last question, updateResults, push to App & set battleDone 
             console.log("question");
             finishTimer();
-            //push results to App 
             setBattleCompleted(true);
 
         }   
@@ -269,40 +301,48 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
-
+    const testingMode = false;
 
     ////////////////////////////////////////////////////////////
     //BattleField return JSX component
     return (
         <>
-            <>  
-                <ViewState  outcomes={outcomes}/>
-                <ViewState  res={res}/>
+            {!battleCompleted && 
+                <>  
+                    <div>
+                        {testingMode && <>
+                        <ViewState  outcomes={outcomes}/>
+                        <ViewState  res={res}/>
+                        
+                        <ViewState  index={currentIndex}/>
+                        <ViewState {...props} />
+                        <ViewState {...questionsArr} />
+                        </>}
+
+                        <br/>
+                        <BasicCounter 
+                            clockRunning={clockRunning}
+                            timeRem={timeRem}
+                            setTimeRem={setTimeRem}
+                            handleTimerDone={handleTimerDone}
+                        />
+                        <br/><br/><br/>
+                    </div>
+
                 
-                <ViewState  index={currentIndex}/>
-                <ViewState {...props} />
-                <ViewState {...questionsArr} />
-                <br/>
-                <BasicCounter 
-                    clockRunning={clockRunning}
-                    timeRem={timeRem}
-                    setTimeRem={setTimeRem}
-                    handleTimerDone={handleTimerDone}
-                />
-                <br/><br/><br/>
+                    <div>
+                        <ManualUpdateButton onClick={handleUpdateManual}/>
+                        <br/>
+                        <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
+                        <br/>
+                        <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
+                    </div>
+                </>
+            }
 
-            </>
-                <div>
-                    <ManualUpdateButton onClick={handleUpdateManual}/>
-                    <br/>
-                    <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
-                    <br/>
-                    <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
-                </div>
-
-                {battleCompleted && 
-                    <DisplayHumiliation />
-                }
+            {battleCompleted && 
+                <DisplayHumiliation outcomes={outcomes} questions={questionsArr} />
+            }
         </>
     )
 }
