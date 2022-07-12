@@ -20,23 +20,6 @@ TODO:
     - If they got all the questions right, display the results
             => only display results if progress == 10/10
     - Allow user to modify the number of questions asked
-
-STRATEGY:
-    - raiseState to BattleField.... Do all the logic in BattleField
-
-TASKS:
-    - remove guessedCorect    
-    - raise state of [guess, setGuess] & answerChecked
-    - define props for BattleField, QuizQuestion
-    - update logic
-    - sort out timer stopping after correct guess 
-
-INTEGRATE from issue11-post-1.1
-    - questionsInit() function to create useState(initial question data)
-    - use submitWithEnter() event listener from
-
-LATER: 
-    - later: define props for EnterSettings, StartButton
 ##########################################################################################
 */
 
@@ -51,63 +34,26 @@ export interface BattleFieldProps {
 
 
 
-//for each individual quiz question, 'Question' interface used to store the numbers used to form the question , the latest guess & the outcome 
+//each individual QuizQuestion formed by a Question object num1 * num2
 export interface Question {
     num1: number;
     num2: number;
-    //guess: number|undefined;
-    //outcome: outcome; //this will be undefined until outcome is recorded <=> questionDone
 }
 
+//outcome of each QuizQuestion is stored in an Outcome object
 export interface Outcome {
     finalGuess: number | undefined;
     result: string | undefined;  //"Correct" | "Incorrect" | "TimeUp" | undefined
 }
 
-type ZippedTuple = [question: Question, outcome : Outcome];
 
-function DisplayHumiliation(props: {outcomes: Outcome[], questions: Question[]}) {
-    //Combine each question/outcome pair a tuple 
-    const zippedArr: ZippedTuple[] = props.questions.map((question,indexZip) => {
-        return [question,props.outcomes[indexZip]];
-    });
-    return (
-      <>
-        <h1>Quiz Completed!!</h1>
-        <li>
-                {zippedArr.map((res) => <PatheticHumanWeep zip={res} />)}
-        </li>
-      </>
-    )
-  }
-
-
-interface PatheticHumanWeepProps {zip: ZippedTuple;}
-function PatheticHumanWeep(props: PatheticHumanWeepProps) {
-    const [question,outcome] = props.zip;
-    const questStr = `Question: ${question.num1} x ${question.num2} = ${question.num1*question.num2}`;
-    
-    //Return result of outcome unless undefined
-    const validOutcome = outcome.result === 'TimeUp' || outcome.result === 'Incorrect' || outcome.result || 'Correct';
-    let resultStr = validOutcome 
-        ? `Outcome: ${outcome.result}` 
-        : `Something Went Wrong`;
-
-    return ( 
-        <dl>
-            <dd>
-                {questStr} 
-            </dd>
-            <dd>
-                {resultStr}
-            </dd>
-        </dl>
-
-    )
-
-}
 
 /*BattleField() coordinates running multiple questions with time delays and records the results*/
+//FUNCTIONALITY: 
+//A quiz question is finished when user has inputted a correct answer & clicked the CheckAnswer button
+//BattleField keeps displaying the current question until either (1) user gets the right answer or (2) Timer reaches timeLimit
+//BattleField uses currentIndex to loop through each question (stored in questionsArr) & record the result (stored in outcomes)
+//
 export function BattleField(this: any, props: BattleFieldProps) { 
 
     //Destructure BattleFieldProps to improve readability
@@ -135,11 +81,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const [progress, setProgress] = useState(0);
 
 
-    //BUSINESS LOGIC:
-    //ASSUMPTIONS: GET FUNCTIONS need to be called before QuizQuestions are rendered with next question
-    //They base their answer on values that are wiped each new question 
-    //so if they are called after updating UI to next question, they will return stale data
-    
+
   
 
 
@@ -368,5 +310,48 @@ function ManualUpdateButton(props: {onClick: any}) {
                 onClick={(e) => {props.onClick("Manual")}}
             />
         </label>
+    )
+}
+
+
+type ZippedTuple = [question: Question, outcome : Outcome];
+
+function DisplayHumiliation(props: {outcomes: Outcome[], questions: Question[]}) {
+    //Combine each question/outcome pair a tuple 
+    const zippedArr: ZippedTuple[] = props.questions.map((question,indexZip) => {
+        return [question,props.outcomes[indexZip]];
+    });
+    return (
+      <>
+        <h1>Quiz Completed!!</h1>
+        <li>
+                {zippedArr.map((res) => <PatheticHumanWeep zip={res} />)}
+        </li>
+      </>
+    )
+  }
+
+
+interface PatheticHumanWeepProps {zip: ZippedTuple;}
+function PatheticHumanWeep(props: PatheticHumanWeepProps) {
+    const [question,outcome] = props.zip;
+    const questStr = `Question: ${question.num1} x ${question.num2} = ${question.num1*question.num2}`;
+    
+    //Return result of outcome unless undefined
+    const validOutcome = outcome.result === 'TimeUp' || outcome.result === 'Incorrect' || outcome.result || 'Correct';
+    let resultStr = validOutcome 
+        ? `Outcome: ${outcome.result}` 
+        : `Something Went Wrong`;
+
+    return ( 
+        <dl>
+            <dd>
+                {questStr} 
+            </dd>
+            <dd>
+                {resultStr}
+            </dd>
+        </dl>
+
     )
 }
