@@ -53,50 +53,55 @@ export interface Outcome {
 //A quiz question is finished when user has inputted a correct answer & clicked the CheckAnswer button
 //BattleField keeps displaying the current question until either (1) user gets the right answer or (2) Timer reaches timeLimit
 //BattleField uses currentIndex to loop through each question (stored in questionsArr) & record the result (stored in outcomes)
-//
+//  For each increment of index: 
+//  - display the question, run the timer, store the result, 
+//  - update progress & questionsDone and render QuizQuestion with new data & empty guess state
 export function BattleField(this: any, props: BattleFieldProps) { 
 
     //Destructure BattleFieldProps to improve readability
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
-    //LOCAL STATE:
-    //battleCompleted set to true once all questions have been answered or timedOut.. Counter stops & results displayed
-    const [battleCompleted, setBattleCompleted] = useState<boolean>(false);
-
-    //more substantial results:
+    //STATE Specifc to BattleField (a series of questions)
+    //currentIndex of question being displayed from outcomes hook & index to store result in outcomes hook
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    //results: "Correct" | "Incorrect" | "TimeUp" & the finalGuess submitted
     const [outcomes, setOutcomes] = useState<Outcome[]>(() => buildOutcomes(numQuestions));
     //questionsArr contains nested arrays with num1, num2 where questionAnswer = num1 * num2
     const [questionsArr] = useState<Question[]>(() => buildQuestions(numQuestions,lowerBound,upperBound));
-    //currentIndex of question being displayed
-    const [currentIndex, setCurrentIndex] = useState<number>(0);
-    
+    //battleCompleted set to true once all questions have been answered or timedOut.. Counter stops & results displayed
+    const [battleCompleted, setBattleCompleted] = useState<boolean>(false);
+    //progress: number of correct guesses submitted before timer countdown
+    const [progress, setProgress] = useState(0);
+    //number of questions that have been completed (answered correctly or timed out)
+    const [questionsDone, setQuestionsDone] = useState(0);
+
+
+    //STATE specific to each question (raised from QuizQuestion)
     //guess contains the last value inputted into and displayed by the Guess function.
     const [guess,setGuess] = useState<number|undefined>();
     //answerChecked is set to true when user clicks checkAnswer button, reset to false when current question is done
     const [answerChecked, setAnswerChecked] = useState(false);
     //timeRem: time remaining in CountDown to answer a specifi QuizQuestion 
     const [timeRem, setTimeRem] = useState(props.timeLimit);
-    //progress: number of correct guesses submitted before timer countdown
-    const [progress, setProgress] = useState(0);
-    const [questionsDone, setQuestionsDone] = useState(0);
 
 
 
 
+    ////////////////////////////////////////////////////////////
+    //GETTER FUNCTIONS
 
-    //get the answer the question corresponding to index in argument
+    //get the answer to the question at the given index
     function getAnswer(index: number) {
         return questionsArr[index].num1 * questionsArr[index].num2;
     }
 
-
+    //check whether the question at index is the last question
     function isLastQuestion(index: number) {
         //index of last question occurs @ numQuesstions -1 => 
         return (index === (numQuestions - 1)) ? true : false;
     }
 
-    ////////////////////////////////////////////////////////////
-    //UPDATER FUNCTIONS
+
 
 
     //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
@@ -104,8 +109,11 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setTimeRem(timeLimit);
     }
 
+    ////////////////////////////////////////////////////////////
+    //UPDATER FUNCTIONS
 
-
+    ////////////////////////////////////////////////////////////
+    //HANDLER FUNCTIONS
 
     type caller = "Time" | "Check" | "Guess" | "Manual" 
     function handleUpdate(caller: caller) {
@@ -124,30 +132,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }   
     }
 
-    //Get the current BattleProps based on the current index. Used by handleUpdate() which is invoked by handlers() when questionDone
-    function getQuizQuestionProps(index: number) {
-        return {
-            //Get questions from current question
-            num1: questionsArr[index].num1,
-            num2: questionsArr[index].num2,
-            //Get old values
-            guess: guess,
-            answerChecked: answerChecked,
-            setAnswerChecked: setAnswerChecked,
-            handleCheckAnswerButton: handleCheckAnswerButton,
-            handleGuess: handleGuess,
-        }
-    }
 
-    //nextQuizQuestionPropsInit()
-    //PURPOSE: Reset state => reinitialise <QuizQuestion> for next question
-    function nextQuizQuestionPropsInit() {
-        setGuess(undefined);
-        setAnswerChecked(false);
-    }
 
-    ////////////////////////////////////////////////////////////
-    //HANDLER FUNCTIONS
+
     //(for child stateless components)
     //NOTE: atm, successfull outcome = (answerChecked && getAnswer(currentIndex)===guess) || timerDone
     //Therefore, handleTimerDone() will call updateApp() by default, whereas handleGuess() will need to check questionDone()
@@ -221,6 +208,28 @@ export function BattleField(this: any, props: BattleFieldProps) {
             handleResult(currentIndex,true,guess);
             handleUpdate("Check");
         }
+    }
+
+    //Get the current BattleProps based on the current index. Used by handleUpdate() which is invoked by handlers() when questionDone
+    function getQuizQuestionProps(index: number) {
+        return {
+            //Get questions from current question
+            num1: questionsArr[index].num1,
+            num2: questionsArr[index].num2,
+            //Get old values
+            guess: guess,
+            answerChecked: answerChecked,
+            setAnswerChecked: setAnswerChecked,
+            handleCheckAnswerButton: handleCheckAnswerButton,
+            handleGuess: handleGuess,
+        }
+    }
+
+    //nextQuizQuestionPropsInit()
+    //PURPOSE: Reset state => reinitialise <QuizQuestion> for next question
+    function nextQuizQuestionPropsInit() {
+        setGuess(undefined);
+        setAnswerChecked(false);
     }
 
     console.log(">>>>> questionsDone: ", questionsDone);
