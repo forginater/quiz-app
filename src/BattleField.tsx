@@ -115,15 +115,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //Therefore, 
 
     //handleTimerDone()
-    //PURPOSE: setTimerDone(true), call updateBattleField then reset Timer
-    //If timeUp then 'Incorrect'
     function handleTimerDone() {
-        console.log("handleTimerDone() called:");
-
+        //reset timeRem for next question
         setTimeRem(timeLimit);
-        //always update if timer, except
-        //has finished with 'Incorrect'
-        //Need to check here: if this is final question x: don't need to update
+        //always update outcome as 'Incorrect' if timeUp 
         setQuestionsDone(prev => prev + 1);
         updateOutcomes(currentIndex, {finalGuess: undefined, result: "TimeUp"})
         updateBattleField("Time");
@@ -132,11 +127,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
-        console.log("handleGuess() called:")
         setGuess(newGuess);
         //update if: checkAnswer button was clicked before newGuess was entered
         const updateNow: boolean = (newGuess !== undefined && (newGuess === getAnswer(currentIndex)) && answerChecked);
-        console.log("value of updateNow is: ",updateNow);
         if (updateNow) {
             handleResult(currentIndex,answerChecked,newGuess);
             updateBattleField("Guess");
@@ -149,7 +142,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //Update if: correct answer was entered before clicking CheckAnswerButton
         const updateNow = (guess === getAnswer(currentIndex));
         if (updateNow) {
-            console.log(">>>>checkAnswerButton() calling updateBattleField()");
             handleResult(currentIndex,true,guess);
             updateBattleField("Check");
         }
