@@ -17,7 +17,7 @@ export interface EnterSettingsProps {
 export function EnterSettings(props: EnterSettingsProps) {
   return (
       <div>
-        <h3>Enter Quiz Settings: SUCK MA BALL</h3>
+        <h3>Enter Quiz Settings:</h3>
         <label>
           Enter time limit in seconds:
           <input 
