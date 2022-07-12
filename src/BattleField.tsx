@@ -130,8 +130,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //answerChecked is set to true when user clicks checkAnswer button, reset to false when current question is done
     const [answerChecked, setAnswerChecked] = useState(false);
 
-    //timerDone is toggled to true when (timeRem===0) <=> $timeLimit seconds have passed
-    const [timerDone, setTimerDone] = useState(false);
     //timeRem: time remaining in the CountDown for user to correctly guess the answer
     const [timeRem, setTimeRem] = useState(props.timeLimit);
 
@@ -164,7 +162,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
 
     //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
-    //no need to setTimerDone(true) as the next question would setTimerDone(false) straight afterwards
     function resetTimer() {
         setTimeRem(timeLimit);
     }
@@ -213,7 +210,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
     function nextQuizQuestionPropsInit() {
         setGuess(undefined);
         setAnswerChecked(false);
-        setTimerDone(false);
     }
 
     ////////////////////////////////////////////////////////////
@@ -227,7 +223,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //If timeUp then 'Incorrect'
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
-        setTimerDone(true);
+
         setTimeRem(timeLimit);
         //always update if timer, except
         //has finished with 'Incorrect'
