@@ -110,12 +110,12 @@ function PatheticHumanWeep(props: PatheticHumanWeepProps) {
 /*BattleField() coordinates running multiple questions with time delays and records the results*/
 export function BattleField(this: any, props: BattleFieldProps) { 
 
-    //Destructure props
+    //Destructure BattleFieldProps to improve readability
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
+    //LOCAL STATE:
+    
     const [battleCompleted, setBattleCompleted] = useState<boolean>(false);
-    
-    
     //result: push basic result: 'Incorrect', 'Correct', 'TimeUp'
     const [res, setRes] = useState(['']);
     //more substantial results:
@@ -125,16 +125,16 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //currentIndex of question being displayed
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     
-    //guess contains the current value displayed on the guess field
+    //guess contains the last value inputted into and displayed by the Guess function.
     const [guess,setGuess] = useState<number|undefined>();
     //answerChecked is set to true when user clicks checkAnswer button, reset to false when current question is done
     const [answerChecked, setAnswerChecked] = useState(false);
-
-    //timeRem: time remaining in the CountDown for user to correctly guess the answer
+    //timeRem: time remaining in CountDown to answer a specifi QuizQuestion 
     const [timeRem, setTimeRem] = useState(props.timeLimit);
-
-    //progress: correct answers 
+    //progress: number of correct guesses submitted before timer countdown
     const [progress, setProgress] = useState(0);
+    //clockRunning: true while BattleField is rendering each QuizQuestion.... 
+    //set to false once user has answered all questions then results are displayed
     const [clockRunning, setClockRunning] = useState(true);
 
 
