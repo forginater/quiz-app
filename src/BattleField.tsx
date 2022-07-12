@@ -62,8 +62,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //LOCAL STATE:
     //battleCompleted set to true once all questions have been answered or timedOut.. Counter stops & results displayed
     const [battleCompleted, setBattleCompleted] = useState<boolean>(false);
-    //result: push basic result: 'Incorrect', 'Correct', 'TimeUp'
-    const [res, setRes] = useState(['']);
+
     //more substantial results:
     const [outcomes, setOutcomes] = useState<Outcome[]>(() => buildOutcomes(numQuestions));
     //questionsArr contains nested arrays with num1, num2 where questionAnswer = num1 * num2
@@ -79,10 +78,10 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     //progress: number of correct guesses submitted before timer countdown
     const [progress, setProgress] = useState(0);
+    const [questionsDone, setQuestionsDone] = useState(0);
 
 
 
-  
 
 
     //get the answer the question corresponding to index in argument
@@ -162,14 +161,13 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setTimeRem(timeLimit);
         //always update if timer, except
         //has finished with 'Incorrect'
-        //setResults([...results,'index #' + currentIndex + ': TIMEUP']);
         //Need to check here: if this is final question x: don't need to update
-        setRes([...res,"TimeUp"]);
+        setQuestionsDone(prev => prev + 1);
         updateOutcomes(currentIndex, {finalGuess: undefined, result: "TimeUp"})
         handleUpdate("Time");
     }
 
-    //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update the store the result
+    //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update and store the result
     function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
         const ans = questionsArr[index].num1 * questionsArr[index].num2;
         const newResult = (checked && newGuess===ans) //If
@@ -179,8 +177,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
         if (newResult === 'Correct') {
             setProgress(prev => prev + 1);
         }
-        //push results to res
-        setRes([...res,'index# ' + index + ': ' + newResult]);
+        //update questionsDone
+        setQuestionsDone(prev => prev + 1);
+        
         //push results to outcomes
         const newOutcome = {finalGuess: newGuess, result: newResult}
         updateOutcomes(index,newOutcome)
@@ -224,6 +223,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
+    console.log(">>>>> questionsDone: ", questionsDone);
     
 
     //////////////////////////////////
@@ -248,7 +248,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
                         <br/>
                         <QuizQuestion {...getQuizQuestionProps(currentIndex)} />
                         <br/>
-                        <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsSubmitted={res.length} />
+                        <DisplayProgress progress={progress} numQuestions={numQuestions} currentIndex={currentIndex} questionsDone={questionsDone} />
                     </div>
                 </>
             }
@@ -262,10 +262,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 
 
 //Display the user's progress
-function DisplayProgress(props: {progress: number, numQuestions: number, currentIndex: number, questionsSubmitted: number}) {
+function DisplayProgress(props: {progress: number, numQuestions: number, currentIndex: number, questionsDone: number}) {
 
-    let remainingQuestions = props.numQuestions - (props.questionsSubmitted - 1)
-    remainingQuestions = remainingQuestions > 0 ? remainingQuestions : 0;
+    const remainingQuestions = props.numQuestions - props.questionsDone;
     return (
         <>
             <p>Progress: {props.progress} / {props.numQuestions} Correct! </p>
