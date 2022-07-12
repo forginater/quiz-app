@@ -102,42 +102,16 @@ export function BattleField(this: any, props: BattleFieldProps) {
     }
 
 
-
-
-    //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
-    function resetTimer() {
-        setTimeRem(timeLimit);
-    }
-
-    ////////////////////////////////////////////////////////////
-    //UPDATER FUNCTIONS
-
     ////////////////////////////////////////////////////////////
     //HANDLER FUNCTIONS
+    //These functions passed to child components as props to handle events
+    //The 3 events that need to be handled are:
+    //  (1) timer exceeds timeLimit
+    //  (2) guess inputted
+    //  (3) check answer button clicked
 
-    type caller = "Time" | "Check" | "Guess" | "Manual" 
-    function handleUpdate(caller: caller) {
-        console.log("<<<>>> Caller of handleUpdate was: ", caller)
-        const nextIndex = currentIndex + 1;
-        if (!isLastQuestion(currentIndex)) { 
-            console.log("NotLastQuestion");
-            resetTimer()
-            nextQuizQuestionPropsInit();
-            setCurrentIndex(nextIndex);
-        }
-        else { //This is the last question, updateResults, push to App & set battleDone 
-            console.log("question");
-            setBattleCompleted(true);
-
-        }   
-    }
-
-
-
-
-    //(for child stateless components)
-    //NOTE: atm, successfull outcome = (answerChecked && getAnswer(currentIndex)===guess) || timerDone
-    //Therefore, handleTimerDone() will call updateApp() by default, whereas handleGuess() will need to check questionDone()
+    //Note: successfull outcome => correct guess && answerButton clicked || timerUp
+    //Therefore, 
 
     //handleTimerDone()
     //PURPOSE: setTimerDone(true), call handleUpdate then reset Timer
@@ -154,36 +128,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         handleUpdate("Time");
     }
 
-    //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update and store the result
-    function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
-        const ans = questionsArr[index].num1 * questionsArr[index].num2;
-        const newResult = (checked && newGuess===ans) //If
-            ? 'Correct'
-            : 'Incorrect';
-        //update progress value if correct answer
-        if (newResult === 'Correct') {
-            setProgress(prev => prev + 1);
-        }
-        //update questionsDone
-        setQuestionsDone(prev => prev + 1);
-        
-        //push results to outcomes
-        const newOutcome = {finalGuess: newGuess, result: newResult}
-        updateOutcomes(index,newOutcome)
-    }
-
-    /*
-    interface Outcome {
-    finalGuess: number | undefined;
-    result: "Correct" | "Incorrect" | undefined; 
-    } */
-    function updateOutcomes(index: number, newOutcome: Outcome) {
-        const clonedOutcomes = outcomes.slice();
-        clonedOutcomes[index] = {...newOutcome};
-        setOutcomes([...clonedOutcomes]);
-    }
-    
-    
     //handleGuess() 
     //PURPOSE: Freeze <Guess> & setGuess(newGuess)
     function handleGuess(newGuess: number|undefined): void {
@@ -210,6 +154,69 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
+    ////////////////////////////////////////////////////////////
+    //UPDATER FUNCTIONS: 
+    //The updater functions are called by the above handlers in order to: 
+    // determine the outcome of the an event registers by one of the handlers: Incorrect, Correct, TimeUp
+    //  - update BattleField state: increment (current index questionsDone, progress) 
+    //  - record outcome in outcomes
+    //  - update the props to QuizQuestion:
+    //      - with the next question getQuizQuestionProps()
+    //      - reset the answerChecked & guessFields refreshUserInputFields()
+
+    //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
+    function resetTimer() {
+        setTimeRem(timeLimit);
+    }
+
+
+    //handleUpdate() called every time a questions is finished and need to increment index etc
+    type caller = "Time" | "Check" | "Guess" | "Manual" 
+    function handleUpdate(caller: caller) {
+        console.log("<<<>>> Caller of handleUpdate was: ", caller)
+        const nextIndex = currentIndex + 1;
+        if (!isLastQuestion(currentIndex)) { 
+            console.log("NotLastQuestion");
+            resetTimer()
+            refreshUserInputFields();
+            setCurrentIndex(nextIndex);
+        }
+        else { //This is the last question, updateResults & set battleDone 
+            console.log("question");
+            setBattleCompleted(true);
+
+        }   
+    }
+
+
+    //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update and store the result
+    //explicitly pass index, answerChecked & newGuess as arguments to avoid stale data
+    function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
+        const ans = questionsArr[index].num1 * questionsArr[index].num2;
+        const newResult = (checked && newGuess===ans) //If
+            ? 'Correct'
+            : 'Incorrect';
+        //update progress value if correct answer
+        if (newResult === 'Correct') {
+            setProgress(prev => prev + 1);
+        }
+        //update questionsDone
+        setQuestionsDone(prev => prev + 1);
+        //push results to outcomes
+        const newOutcome = {finalGuess: newGuess, result: newResult}
+        updateOutcomes(index,newOutcome)
+    }
+
+    //update the Outcome object at index in the outcomes useState array.
+    function updateOutcomes(index: number, newOutcome: Outcome) {
+        const clonedOutcomes = outcomes.slice();
+        clonedOutcomes[index] = {...newOutcome};
+        setOutcomes([...clonedOutcomes]);
+    }
+    
+    
+
+
     //Get the current BattleProps based on the current index. Used by handleUpdate() which is invoked by handlers() when questionDone
     function getQuizQuestionProps(index: number) {
         return {
@@ -225,14 +232,13 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
-    //nextQuizQuestionPropsInit()
-    //PURPOSE: Reset state => reinitialise <QuizQuestion> for next question
-    function nextQuizQuestionPropsInit() {
+    //refreshUserInputFields()
+    //After incrementIndex and displaying next question, need to refresh userInputFields 
+    function refreshUserInputFields() {
         setGuess(undefined);
         setAnswerChecked(false);
     }
 
-    console.log(">>>>> questionsDone: ", questionsDone);
     
 
     //////////////////////////////////
@@ -270,7 +276,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
 }
 
 
-//Display the user's progress
+//Display the user's progress during the quiz: display 
+//  - Progress: #correct / #questions
+//  - Remaining: total questions remaining before end of quiz
 function DisplayProgress(props: {progress: number, numQuestions: number, currentIndex: number, questionsDone: number}) {
 
     const remainingQuestions = props.numQuestions - props.questionsDone;
@@ -286,7 +294,7 @@ function DisplayProgress(props: {progress: number, numQuestions: number, current
 
 
 
-//buildQuestions() builds the initial input for the questionsArr useState hook with numQuestions * Question objects
+//buildQuestions() builds the initial input for the questionsArr useState array with numQuestions * Question objects
 function buildQuestions(numQuestions: number, lowerBound: number, upperBound: number): Question[] {
     return Array(numQuestions).fill(undefined).map((question) => {
         return {
@@ -296,6 +304,7 @@ function buildQuestions(numQuestions: number, lowerBound: number, upperBound: nu
 })
 }
 
+//Build the initial input for the 'outcomes' useState array, leave the values undefined until outcome is recorded
 function buildOutcomes(numQuestions: number): Outcome[] {
     const newArr = Array(numQuestions).fill(undefined);
     const objectified = newArr.map((elem) => {
@@ -304,22 +313,6 @@ function buildOutcomes(numQuestions: number): Outcome[] {
     return objectified;
 }
 
-
-
-//ManualUpdateButton allows us to manually update to the next question rather than needing Correct answer or timeUp
-//TESTING PURPOSES:
-function ManualUpdateButton(props: {onClick: any}) { 
-    return (
-        <label>
-            ManualUpdate:
-            <input 
-                type="button"
-                value="ManualUpdate()"
-                onClick={(e) => {props.onClick("Manual")}}
-            />
-        </label>
-    )
-}
 
 
 type ZippedTuple = [question: Question, outcome : Outcome];
