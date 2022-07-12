@@ -114,7 +114,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //Therefore, 
 
     //handleTimerDone()
-    //PURPOSE: setTimerDone(true), call handleUpdate then reset Timer
+    //PURPOSE: setTimerDone(true), call updateBattleField then reset Timer
     //If timeUp then 'Incorrect'
     function handleTimerDone() {
         console.log("handleTimerDone() called:");
@@ -125,7 +125,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //Need to check here: if this is final question x: don't need to update
         setQuestionsDone(prev => prev + 1);
         updateOutcomes(currentIndex, {finalGuess: undefined, result: "TimeUp"})
-        handleUpdate("Time");
+        updateBattleField("Time");
     }
 
     //handleGuess() 
@@ -138,7 +138,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         console.log("value of updateNow is: ",updateNow);
         if (updateNow) {
             handleResult(currentIndex,answerChecked,newGuess);
-            handleUpdate("Guess");
+            updateBattleField("Guess");
         }  
     };
 
@@ -148,9 +148,9 @@ export function BattleField(this: any, props: BattleFieldProps) {
         //Update if: correct answer was entered before clicking CheckAnswerButton
         const updateNow = (guess === getAnswer(currentIndex));
         if (updateNow) {
-            console.log(">>>>checkAnswerButton() calling handleUpdate()");
+            console.log(">>>>checkAnswerButton() calling updateBattleField()");
             handleResult(currentIndex,true,guess);
-            handleUpdate("Check");
+            updateBattleField("Check");
         }
     }
 
@@ -164,32 +164,32 @@ export function BattleField(this: any, props: BattleFieldProps) {
     //      - with the next question getQuizQuestionProps()
     //      - reset the answerChecked & guessFields refreshUserInputFields()
 
-    //Note: this is only called when timer is prematurely reset by handleUpdate() due to correct answer
+    //Note: this is only called when timer is prematurely reset by updateBattleField() due to correct answer
     function resetTimer() {
         setTimeRem(timeLimit);
     }
 
 
-    //handleUpdate() called every time a questions is finished and need to increment index etc
-    type caller = "Time" | "Check" | "Guess" | "Manual" 
-    function handleUpdate(caller: caller) {
-        console.log("<<<>>> Caller of handleUpdate was: ", caller)
+    //updateBattleField() called every time a questions is finished
+    //RESPONSIBILITY: check if last question: incrementIndex, resetTimer(), refresh QuizQuestion props, determine when battleCompleted
+    type caller = "Time" | "Check" | "Guess" | "Manual" //useful for debugging, can delete
+    function updateBattleField(caller: caller) {
         const nextIndex = currentIndex + 1;
+        //Not last question:
         if (!isLastQuestion(currentIndex)) { 
-            console.log("NotLastQuestion");
             resetTimer()
             refreshUserInputFields();
             setCurrentIndex(nextIndex);
         }
         else { //This is the last question, updateResults & set battleDone 
-            console.log("question");
             setBattleCompleted(true);
 
         }   
     }
 
 
-    //handleResult() called by handleGuess() & handleCheckAnswerButton() to determine outcome and update and store the result
+    //handleResult() called by handleGuess() & handleCheckAnswerButton() 
+    //RESPONSIBILITY: determine outcome and update and store the result
     //explicitly pass index, answerChecked & newGuess as arguments to avoid stale data
     function handleResult(index: number, checked: boolean, newGuess: number|undefined) {
         const ans = questionsArr[index].num1 * questionsArr[index].num2;
@@ -214,10 +214,16 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setOutcomes([...clonedOutcomes]);
     }
     
-    
+    //refreshUserInputFields()
+    //After incrementIndex and displaying next question, need to refresh userInputFields 
+    function refreshUserInputFields() {
+        setGuess(undefined);
+        setAnswerChecked(false);
+    }
 
 
-    //Get the current BattleProps based on the current index. Used by handleUpdate() which is invoked by handlers() when questionDone
+
+    //Get the current BattleProps based on the current index. Used by updateBattleField() which is invoked by handlers() when questionDone
     function getQuizQuestionProps(index: number) {
         return {
             //Get questions from current question
@@ -232,12 +238,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
-    //refreshUserInputFields()
-    //After incrementIndex and displaying next question, need to refresh userInputFields 
-    function refreshUserInputFields() {
-        setGuess(undefined);
-        setAnswerChecked(false);
-    }
+
 
     
 
@@ -315,8 +316,9 @@ function buildOutcomes(numQuestions: number): Outcome[] {
 
 
 
-type ZippedTuple = [question: Question, outcome : Outcome];
 
+type ZippedTuple = [question: Question, outcome : Outcome];
+interface PatheticHumanWeepProps {zip: ZippedTuple;}
 function DisplayHumiliation(props: {outcomes: Outcome[], questions: Question[]}) {
     //Combine each question/outcome pair a tuple 
     const zippedArr: ZippedTuple[] = props.questions.map((question,indexZip) => {
@@ -333,7 +335,6 @@ function DisplayHumiliation(props: {outcomes: Outcome[], questions: Question[]})
   }
 
 
-interface PatheticHumanWeepProps {zip: ZippedTuple;}
 function PatheticHumanWeep(props: PatheticHumanWeepProps) {
     const [question,outcome] = props.zip;
     const questStr = `Question: ${question.num1} x ${question.num2} = ${question.num1*question.num2}`;
