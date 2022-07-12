@@ -114,7 +114,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const {timeLimit,numQuestions,lowerBound,upperBound} = props;
 
     //LOCAL STATE:
-    
+    //battleCompleted set to true once all questions have been answered or timedOut.. Counter stops & results displayed
     const [battleCompleted, setBattleCompleted] = useState<boolean>(false);
     //result: push basic result: 'Incorrect', 'Correct', 'TimeUp'
     const [res, setRes] = useState(['']);
@@ -133,9 +133,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
     const [timeRem, setTimeRem] = useState(props.timeLimit);
     //progress: number of correct guesses submitted before timer countdown
     const [progress, setProgress] = useState(0);
-    //clockRunning: true while BattleField is rendering each QuizQuestion.... 
-    //set to false once user has answered all questions then results are displayed
-    const [clockRunning, setClockRunning] = useState(true);
 
 
     //BUSINESS LOGIC:
@@ -166,10 +163,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
         setTimeRem(timeLimit);
     }
 
-    //when clockRunning is false, Timer stops running
-    function finishTimer() {
-        setClockRunning(false);
-    }
+
 
 
     type caller = "Time" | "Check" | "Guess" | "Manual" 
@@ -184,7 +178,6 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
         else { //This is the last question, updateResults, push to App & set battleDone 
             console.log("question");
-            finishTimer();
             setBattleCompleted(true);
 
         }   
@@ -289,6 +282,8 @@ export function BattleField(this: any, props: BattleFieldProps) {
         }
     }
 
+    
+
     //////////////////////////////////
     //BattleField return JSX component
     return (
@@ -298,7 +293,7 @@ export function BattleField(this: any, props: BattleFieldProps) {
                     <div>
                         <br/>
                         <BasicCounter 
-                            clockRunning={clockRunning}
+                            clockRunning={!battleCompleted}
                             timeRem={timeRem}
                             setTimeRem={setTimeRem}
                             handleTimerDone={handleTimerDone}
